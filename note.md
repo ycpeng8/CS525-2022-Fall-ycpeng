@@ -1,8 +1,8 @@
 ### Sync
 
 ```
-$: git fetch upstream
-$: git merge upstream/main main
+% git fetch upstream
+% git merge upstream/main main
 ```
 
 ### Activate environment in csa2
