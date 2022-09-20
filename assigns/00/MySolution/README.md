@@ -1,11 +1,7 @@
-### Compile
+Everything done!
+
+### Test my homework
 
 ```
-myatscc assign00_sol.dats 
-```
-
-### Run
-
-```
-./assign00_sol_dats  
+% make
 ```

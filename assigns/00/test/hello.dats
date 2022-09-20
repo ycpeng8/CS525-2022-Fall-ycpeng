@@ -48,47 +48,8 @@ val l2 = 1 :: 3 :: 5 :: nil()
 val l1 = 0 :: 2 :: 4 :: 9 :: 2 :: nil()
 val l2 = 1 :: 3 :: 5 :: nil()
 
-extern
-fun
-intlist_append : (intlist, intlist) -> intlist
-//
-
-implement
-intlist_append(
-    l1: intlist, l2: intlist
-): intlist = let
-fun
-loop(
-    l1_mod: intlist, l_append_reverse: intlist, l_append: intlist
-): intlist =
-(
-    case l1_mod of
-    | intlist_nil() => l_append
-    | intlist_cons(x1, xs) => 
-    (
-        case l_append_reverse of
-        | intlist_nil() => l_append
-        | intlist_cons(x2, xm) => loop(xs, xm, x2 :: l_append)
-    )
-)
-fun
-loop_reverse(
-    l1_mod: intlist, l_append_reverse: intlist
-): intlist = 
-(
-    case l1_mod of
-    | intlist_nil() => loop(l1, l_append_reverse, l2)
-    | intlist_cons(x1, xs) => loop_reverse(xs, x1 :: l_append_reverse)
-)
-in
-    loop_reverse(l1, l2)
-end
-
-val test = intlist_append(l1, l2)
-val () = println!(test)
-
-(*
-val () = println!(test)
-*)
+val intlist_cons(x1, xs) = l1
+val () = println!(x1)
+val () = println!(xs)
 
 implement main() = 0

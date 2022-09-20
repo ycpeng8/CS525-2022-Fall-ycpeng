@@ -1,6 +1,5 @@
-#include "share/atspre_define.hats"
 #include "share/atspre_staload.hats"
-// #staload "./../../mylib/mylib.dats"
+#staload "./../assign00.dats"
 
 (* ****** ****** *)
 (*
@@ -16,8 +15,6 @@ HX: Sample
 factorial(n) = 1*2*...*n
 *)
 //
-extern
-fun factorial : int -> int
 
 implement factorial(
     n: int
@@ -56,7 +53,6 @@ in
     loop(n-1)
 end
 
-extern fun int_test(): int
 
 implement
 int_test(): int = let
@@ -94,7 +90,6 @@ fun ghaap(n: int): int =
 // Please implement a tail-recursive function gheep
 // such thats gheep(n) = ghaap(n) for all integers n
 //
-extern fun gheep(n: int): int
 
 implement 
 gheep(
@@ -119,19 +114,6 @@ end
 val () = println!("ghaap(4): ", ghaap(4))
 val () = println!("gheep(4): ", gheep(4))
 
-//
-(* ****** ****** *)
-//
-datatype
-intlist =
-|
-intlist_nil of ()
-|
-intlist_cons of (int, intlist)
-//
-#define nil intlist_nil
-#define :: intlist_cons
-#define cons intlist_cons
 
 fun
 fprint_intlst
@@ -166,10 +148,6 @@ overload fprint with fprint_intlst
 // returned list is (0, 2, 4, 1, 3, 5)
 // Please give a tail-recursive implementation
 // of intlist_append.
-//
-extern
-fun
-intlist_append : (intlist, intlist) -> intlist
 //
 
 implement
