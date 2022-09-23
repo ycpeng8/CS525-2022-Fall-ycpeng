@@ -62,7 +62,22 @@ extern
 fun
 {a:t@ype}
 mylist_sing(x0: a): mylist(a)
+extern
+fun
+{a:t@ype}
+mylist_pair(x0: a, y0: a): mylist(a)
 
+(* ****** ****** *)
+//
+extern
+fun
+{a:t@ype}
+mylist_head(xs: mylist(a)): (a)
+extern
+fun
+{a:t@ype}
+mylist_tail(xs: mylist(a)): mylist(a)
+//
 (* ****** ****** *)
 
 extern
@@ -159,8 +174,36 @@ implement
 {(*tmp*)}
 fprint_mylist_sep(out) = fprint(out, "; ")
 (* ****** ****** *)
+//
+implement
+{a}//tmp
+mylist_sing(x0) =
+mylist_cons(x0, mylist_nil())
+implement
+{a}//tmp
+mylist_pair(x0, y0) =
+mylist_cons
+(x0, mylist_cons(y0, mylist_nil()))
+//
+(* ****** ****** *)
+//
+implement
+{a}//tmp
+mylist_head(xs) =
+(case- xs of mylist_cons(x0, xs) => x0)
+implement
+{a}//tmp
+mylist_tail(xs) =
+(case- xs of mylist_cons(x0, xs) => xs)
+//
+(* ****** ****** *)
 
 (*
+(*
+HX-2022-09-19:
+Please avoid this style of
+recursive template implementation.
+*)
 implement
 {a}//tmp
 mylist_length(xs) =
@@ -182,6 +225,42 @@ helper
 case xs of
 | mylist_nil() => acc
 | mylist_cons(_, xs) => helper(xs, acc+1)
+)
+}
+
+(* ****** ****** *)
+//
+implement
+{a}//tmp
+mylist_append
+( xs, ys ) =
+mylist_rappend<a>
+(mylist_reverse<a>(xs), ys)
+//
+(* ****** ****** *)
+
+implement
+{a}//tmp
+mylist_reverse
+(   xs   ) =
+mylist_rappend<a>(xs, mylist_nil())
+
+implement
+{a}//tmp
+mylist_rappend
+( xs, ys ) =
+helper(xs, ys) where
+{
+fun
+helper
+( xs: mylist(a)
+, ys: mylist(a)): mylist(a) =
+(
+case xs of
+| mylist_nil() => ys
+|
+mylist_cons
+( x1 , xs ) => helper(xs, mylist_cons(x1, ys))
 )
 }
 
