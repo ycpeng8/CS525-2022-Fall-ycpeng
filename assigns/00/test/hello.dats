@@ -48,7 +48,7 @@ val l2 = 1 :: 3 :: 5 :: nil()
 val l1 = 0 :: 2 :: 4 :: 9 :: 2 :: nil()
 val l2 = 1 :: 3 :: 5 :: nil()
 
-val intlist_cons(x1, xs) = l1
+val- intlist_cons(x1, xs) = l1
 val () = println!(x1)
 val () = println!(xs)
 

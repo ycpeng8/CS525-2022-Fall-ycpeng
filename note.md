@@ -8,7 +8,7 @@
 ### Activate environment in csa2
 
 ```
-$: source /cs/coursedata/cs525/environment
+% source /cs/coursedata/cs525/environment
 ```
 
 ### Find common library functions
