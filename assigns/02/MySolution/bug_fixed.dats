@@ -25,12 +25,6 @@ certain lambda-terms.
 // fun Y(): term // the Y fixed-point operator
 //
 
-val f = TMvar("f")
-val x = TMvar("x")
-val v = TMvar("v")
-val zero = TMint(0)
-val one = TMint(1)
-val two = TMint(2)
 
 implement
 Y(): term=
@@ -39,6 +33,9 @@ where
 {
 // val wf = TMlam("x", TMapp(f, TMlam("v", TMapp(x, TMapp(x, v)))))
 // val wf = TMlam("x", TMapp(f, TMlam("v", TMapp(TMapp(x, x), v))))
+val f = TMvar("f")
+val x = TMvar("x")
+val v = TMvar("v")
 val wf = TMlam("x", TMapp(f, TMapp(x, x)))
 }
 (* ****** ****** *)
@@ -52,6 +49,12 @@ fact(): term=
 TMapp(Y(), F)
 where
 {
+    val f = TMvar("f")
+    val x = TMvar("x")
+    val v = TMvar("v")
+    val zero = TMint(0)
+    val one = TMint(1)
+    val two = TMint(2)
     val F = TMlam("f", TMlam("x", TMif0(TMgt(x, zero), TMmul(x, TMapp(f, TMsub(x, one))), one)))
 }
 
@@ -66,6 +69,12 @@ fibo(): term=
 TMapp(Y(), F)
 where
 {
+    val f = TMvar("f")
+    val x = TMvar("x")
+    val v = TMvar("v")
+    val zero = TMint(0)
+    val one = TMint(1)
+    val two = TMint(2)
     val F = TMlam("f", TMlam("x", TMif0(TMgte(x, zero), TMadd(TMapp(f, TMsub(x, one)), TMapp(f, TMsub(x, two))), x)))
 }
 
