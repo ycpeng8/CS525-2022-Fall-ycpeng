@@ -12,18 +12,118 @@ certain lambda-terms.
 #include
 "share/atspre_staload.hats"
 (* ****** ****** *)
-// #staload "./../../../mylib/mylib.dats"
-#include "./../assign02.dats"
-// #include
-// "./../../..\
-// /lectures/lecture-09-26/lambda0.dats"
-
+#staload "./../../../mylib/mylib.dats"
+(* ****** ****** *)
+implement main() = 0 // HX: this is a dummy
+(* ****** ****** *)
+typedef tvar = string
+typedef topr = string
+(* ****** ****** *)
+datatype term =
+//
+| TMint of int
+| TMbtf of bool
+//
+| TMvar of tvar
+| TMlam of (tvar, term)
+| TMapp of (term, term)
+//
+| TMopr of (topr, termlst)
+//
+| TMif0 of (term, term, term)
+//
+where termlst = mylist(term)
+//
+(* ****** ****** *)
+extern
+fun
+print_term(t0:term): void
+extern
+fun
+fprint_term
+(out:FILEref, t0:term): void
+(* ****** ****** *)
+implement
+print_term(t0) =
+fprint_term(stdout_ref, t0)
+(* ****** ****** *)
+implement
+fprint_val<term> = fprint_term
+(* ****** ****** *)
+overload print with print_term
+overload fprint with fprint_term
 (* ****** ****** *)
 //
-// 05 points
-// extern
-// fun Y(): term // the Y fixed-point operator
+implement
+fprint_term
+(out, t0) =
+(
+case+ t0 of
+|
+TMint(i0) =>
+fprint!(out, "TMint(", i0, ")")
+|
+TMbtf(b0) =>
+fprint!(out, "TMbtf(", b0, ")")
+|
+TMvar(v0) =>
+fprint!(out, "TMvar(", v0, ")")
+|
+TMlam(v0, t1) =>
+fprint!(out, "TMlam(", v0, ";", t1, ")")
+|
+TMapp(t1, t2) =>
+fprint!(out, "TMapp(", t1, ";", t2, ")")
+|
+TMopr(nm, ts) =>
+fprint!(out, "TMopr(", nm, ";", ts, ")")
+|
+TMif0(t1, t2, t3) =>
+fprint!(out, "TMif0(", t1, ";", t2, ";", t3, ")")
+)
 //
+(* ****** ****** *)
+//
+fun
+TMlt // less
+(x: term, y: term): term =
+TMopr("<", mylist_pair(x, y))
+fun
+TMgt // greater
+(x: term, y: term): term =
+TMopr(">", mylist_pair(x, y))
+fun
+TMlte // less-equal
+(x: term, y: term): term =
+TMopr("<=", mylist_pair(x, y))
+fun
+TMgte // greater-equal
+(x: term, y: term): term =
+TMopr(">=", mylist_pair(x, y))
+//
+fun
+TMeq // equal
+(x: term, y: term): term =
+TMopr("=", mylist_pair(x, y))
+fun
+TMneq // not-equal
+(x: term, y: term): term =
+TMopr("!=", mylist_pair(x, y))
+//
+fun
+TMadd // addition
+(x: term, y: term): term =
+TMopr("+", mylist_pair(x, y))
+fun
+TMsub // subtraction
+(x: term, y: term): term =
+TMopr("-", mylist_pair(x, y))
+fun
+TMmul // multiplication
+(x: term, y: term): term =
+TMopr("*", mylist_pair(x, y))
+//
+
 
 val f = TMvar("f")
 val x = TMvar("x")
@@ -31,6 +131,13 @@ val v = TMvar("v")
 val zero = TMint(0)
 val one = TMint(1)
 val two = TMint(2)
+
+(* ****** ****** *)
+//
+// 05 points
+extern
+fun Y(): term // the Y fixed-point operator
+//
 
 implement
 Y(): term=
@@ -47,6 +154,10 @@ val wf = TMlam("x", TMapp(f, TMapp(x, x)))
 (*
 fact(x) = if x > 0 then x * fact(x-1) else 1
 *)
+extern
+fun fact(): term // representing the factorial function
+//
+
 implement
 fact(): term=
 TMapp(Y(), F)
@@ -54,13 +165,16 @@ where
 {
     val F = TMlam("f", TMlam("x", TMif0(TMgt(x, zero), TMmul(x, TMapp(f, TMsub(x, one))), one)))
 }
-
 (* ****** ****** *)
 //
 // 05 points
 (*
 fibo(x) = if x >= 2 then fibo(x-1)+fibo(x-2) else x
 *)
+extern
+fun fibo(): term // representing the Fibonacci function
+//
+
 implement
 fibo(): term=
 TMapp(Y(), F)
@@ -68,23 +182,12 @@ where
 {
     val F = TMlam("f", TMlam("x", TMif0(TMgte(x, zero), TMadd(TMapp(f, TMsub(x, one)), TMapp(f, TMsub(x, two))), x)))
 }
-
 (* ****** ****** *)
 
+val () = println!("Y = ", Y())
+val () = println!("fact = ", fact())
+val () = println!("fibo = ", fibo())
 
-
-// val () = println!("Y = ", Y())
-// val () =
-// println!
-// ("interp(fact(10)) = ", term_interp(TMapp(fact(),TMint(10))))
-// val () =
-// println!
-// ("interp(fibo(10)) = ", term_interp(TMapp(fibo(),TMint(10))))
-
-(* ****** ****** *)
-
-(* ****** ****** *)
-// implement main() = 0
 (* ****** ****** *)
 
 (* end of [CS525-2022-Fall/assigns/assign02.dats] *)
