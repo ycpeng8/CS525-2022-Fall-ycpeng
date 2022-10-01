@@ -435,21 +435,21 @@ println!
 church_numeral_eval(church_numeral_add(church_numeral(2), church_numeral(10))))
 
 (* ****** ****** *)
-
+(*
 val () =
 println!
 (
 "church_numeral_mul(2, 10) = ",
 church_numeral_eval(church_numeral_mul(church_numeral(2), church_numeral(10))))
-
+*)
 (* ****** ****** *)
-
+(*
 val () =
 println!
 (
 "church_numeral_pow(2, 10) = ",
 church_numeral_eval(church_numeral_pow(church_numeral(2), church_numeral(10))))
-
+*)
 (* ****** ****** *)
 
 (* end of [CS525-2022-Fall/assigns/assign03.dats] *)
