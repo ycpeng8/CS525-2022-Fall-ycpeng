@@ -45,6 +45,8 @@ typedef tmopr = string
 //
 datatype t1erm =
 //
+| T1Mnil of ()
+//
 | T1Mint of int
 | T1Mbtf of bool
 | T1Mstr of string
@@ -139,6 +141,10 @@ fprint_t1erm
 case+ tm0 of
 //
 |
+T1Mnil() =>
+fprint!(out, "T1Mnil(", ")")
+//
+|
 T1Mint(int) =>
 fprint!(out, "T1Mint(", int, ")")
 |
@@ -193,6 +199,8 @@ fprint!(out, "T1Mfix(", fnm, ";", ftp, ";", xnm, ";", tm1, ")")
 
 datatype t1val =
 //
+| T1Vnil of ()
+//
 | T1Vint of int
 | T1Vbtf of bool
 | T1Vstr of string
@@ -231,6 +239,10 @@ fprint_t1val
 (out, tv0) =
 (
 case+ tv0 of
+|
+T1Vnil() =>
+fprint!(out, "T1Vnil(", ")")
+//
 |
 T1Vint(int) =>
 fprint!(out, "T1Vint(", int, ")")
@@ -283,6 +295,8 @@ implement
 t1erm_interp1(tm0, xvs) =
 (
 case tm0 of
+//
+| T1Mnil() => T1Vnil()
 //
 | T1Mint(i0) => T1Vint(i0)
 | T1Mbtf(b0) => T1Vbtf(b0)
@@ -471,6 +485,19 @@ mylist_cons(tv2, tvs) = tvs
 val-
 T1Vint(i1) = tv1 and T1Vint(i2) = tv2 in T1Vbtf(i1 != i2)
 end
+//
+| "show" =>
+let
+val-
+mylist_cons(tv1, tvs) = tvs
+in
+  case- tv1 of
+  | T1Vstr(str) => let val () = print(str) in T1Vnil() end
+end
+//
+| "showval" =>
+let
+val-mylist_cons(tv1, tvs) = tvs in print(tv1); T1Vnil() end
 //
 )
 end (*let*) // end of [t1erm_interp_opr(tm0, xvs)]
@@ -763,6 +790,8 @@ t1erm_oftype1
 (
 case tm0 of
 //
+| T1Mnil _ => T1Pnil
+//
 | T1Mint _ => T1Pint
 | T1Mbtf _ => T1Pbtf
 | T1Mstr _ => T1Pstr
@@ -1005,8 +1034,10 @@ end
 )
 end (*let*) // end of [t1erm_oftype1_opr(tm0, xts)]
 (* ****** ****** *)
+(*
 val () =
 println!("mysum: ", t1erm_oftype0(mysum))
+*)
 (* ****** ****** *)
 //
 val
