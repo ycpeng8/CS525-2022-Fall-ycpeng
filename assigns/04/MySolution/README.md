@@ -13,3 +13,7 @@
 - Implementation of T1Mfst() in t1erm_oftype1(): line 904
 
 - Implementation of T1Msnd() in t1erm_oftype1(): line 916
+
+## P2: lambda2.dats
+
+- Implementation of is_prime: line 1144

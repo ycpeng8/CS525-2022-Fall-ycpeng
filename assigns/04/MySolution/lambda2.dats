@@ -455,6 +455,15 @@ mylist_cons(tv2, tvs) = tvs
 val-
 T1Vint(i1) = tv1 and T1Vint(i2) = tv2 in T1Vint(i1*i2)
 end
+| "%" =>
+let
+val-
+mylist_cons(tv1, tvs) = tvs
+val-
+mylist_cons(tv2, tvs) = tvs
+val-
+T1Vint(i1) = tv1 and T1Vint(i2) = tv2 in T1Vint(i1%i2)
+end
 //
 | "<" =>
 let
@@ -541,6 +550,10 @@ fun
 T1Mmul // multiplication
 (a1: t1erm, a2: t1erm): t1erm =
 T1Mopr("*", mylist_pair(a1, a2))
+fun
+T1Mmod // mod
+(a1: t1erm, a2: t1erm): t1erm =
+T1Mopr("%", mylist_pair(a1, a2))
 //
 fun
 T1Mlt // less
@@ -1036,6 +1049,15 @@ mylist_cons(tp2, tps) = tps
 val-true = t1ype_unify(tp1, T1Pint)
 val-true = t1ype_unify(tp2, T1Pint) in T1Pint
 end
+| "%" =>
+let
+val-
+mylist_cons(tp1, tps) = tps
+val-
+mylist_cons(tp2, tps) = tps
+val-true = t1ype_unify(tp1, T1Pint)
+val-true = t1ype_unify(tp2, T1Pint) in T1Pint
+end
 //
 | "<" =>
 let
@@ -1117,6 +1139,34 @@ println!("mysum2: ", t1erm_oftype0(mysum2))
 val () =
 println!("mysum2(100) = ", t1erm_interp0(T1Mapp(mysum2, T1Mint(100))))
 //
+(* ****** ****** *)
+
+(* ****** ****** *)
+// Yanchong Peng: This is the implementation of [isPrime] in LAMBDA
+val
+is_prime = 
+T1Mlam2("n", T1Pfun(T1Pint, T1Pbtf), 
+T1Mapp(
+T1Mfix2("f", "i", T1Pfun(T1Pint, T1Pbtf),
+T1Mif0(
+T1Mgt(T1Mmul(i, i), n), 
+T1Mbtf(true), 
+T1Mif0(
+T1Meq(T1Mmod(n, i), T1Mint(0)), 
+T1Mbtf(false), 
+T1Mapp(f, T1Madd(i, T1Mint(1)))))), 
+T1Mint(2))) where
+{
+  val f = T1Mvar("f")
+  val n = T1Mvar("n")
+  val i = T1Mvar("i")
+}
+(* ****** ****** *)
+// Yanchong Peng: test [isPrime] in LAMBDA
+val () =
+println!("is_prime: ", t1erm_oftype0(is_prime))
+val () =
+println!("is_prime(3) = ", t1erm_interp0(T1Mapp(is_prime, T1Mint(3))))
 (* ****** ****** *)
 
 (* end of [lambdas_lambda2.dats] *)
