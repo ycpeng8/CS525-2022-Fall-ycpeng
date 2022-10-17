@@ -1145,7 +1145,7 @@ println!("mysum2(100) = ", t1erm_interp0(T1Mapp(mysum2, T1Mint(100))))
 // Yanchong Peng: This is the implementation of [isPrime] in LAMBDA
 val
 is_prime = 
-T1Mlam2("n", T1Pfun(T1Pint, T1Pbtf), 
+T1Mlam2("n", T1Pint, 
 T1Mapp(
 T1Mfix2("f", "i", T1Pfun(T1Pint, T1Pbtf),
 T1Mif0(
@@ -1166,7 +1166,11 @@ T1Mint(2))) where
 val () =
 println!("is_prime: ", t1erm_oftype0(is_prime))
 val () =
-println!("is_prime(3) = ", t1erm_interp0(T1Mapp(is_prime, T1Mint(3))))
+println!("is_prime(10) = ", t1erm_interp0(T1Mapp(is_prime, T1Mint(10))))
+val () =
+println!("is_prime(11) = ", t1erm_interp0(T1Mapp(is_prime, T1Mint(11))))
 (* ****** ****** *)
+
+
 
 (* end of [lambdas_lambda2.dats] *)
