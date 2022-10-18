@@ -342,21 +342,25 @@ T1Mtup(tm1, tm2) => T1Vtup(t1erm_interp1(tm1, xvs), t1erm_interp1(tm2, xvs))
 (* ****** ****** *)
 // Yanchong Peng: This is my implementation of fst interp
 T1Mfst(tm) => 
-(
-case- tm of
+let
+val tv = t1erm_interp1(tm, xvs)
+in
+case- tv of
 |
-T1Mtup(tm1, _) => t1erm_interp1(tm1, xvs)
-)
+T1Vtup(tpl1, _) => tpl1
+end
 (* ****** ****** *)
 |
 (* ****** ****** *)
 // Yanchong Peng: This is my implementation of snd interp
 T1Msnd(tm) => 
-(
-case- tm of
+let
+val tv = t1erm_interp1(tm, xvs)
+in
+case- tv of
 |
-T1Mtup(_, tm2) => t1erm_interp1(tm2, xvs)
-)
+T1Vtup(_, tpl2) => tpl2
+end
 (* ****** ****** *)
 |
 T1Mif0(tm1, tm2, tm3) =>
@@ -531,7 +535,9 @@ end
 //
 | "showval" =>
 let
-val-mylist_cons(tv1, tvs) = tvs in print(tv1); T1Vnil() end
+val-
+mylist_cons(tv1, tvs) = tvs 
+in print(tv1); T1Vnil() end
 //
 )
 end (*let*) // end of [t1erm_interp_opr(tm0, xvs)]
@@ -580,6 +586,18 @@ fun
 T1Mneq // not-equal
 (a1: t1erm, a2: t1erm): t1erm =
 T1Mopr("!=", mylist_pair(a1, a2))
+//
+(* ****** ****** *)
+// Yanchong Peng: This is my implementation of T1Mshow
+fun
+T1Mshow
+(a: t1erm): t1erm =
+T1Mopr("show", mylist_sing(a))
+fun
+T1Mshowval
+(a: t1erm): t1erm =
+T1Mopr("showval", mylist_sing(a))
+(* ****** ****** *)
 //
 (* ****** ****** *)
 //
@@ -1114,6 +1132,26 @@ val-true = t1ype_unify(tp1, T1Pint)
 val-true = t1ype_unify(tp2, T1Pint) in T1Pbtf
 end
 //
+(* ****** ****** *)
+// Yanchong Peng: This is the implementation of type checking for show
+| "show" =>
+let
+val-
+mylist_cons(tp1, tps) = tps
+val-true = t1ype_unify(tp1, T1Pstr) 
+in
+T1Pnil
+end
+| "showval" =>
+let
+val-
+mylist_cons(tp1, tps) = tps
+val-true = t1ype_unify(tp1, T1Pstr) 
+in
+T1Pnil
+end
+(* ****** ****** *)
+//
 )
 end (*let*) // end of [t1erm_oftype1_opr(tm0, xts)]
 (* ****** ****** *)
@@ -1171,6 +1209,119 @@ val () =
 println!("is_prime(11) = ", t1erm_interp0(T1Mapp(is_prime, T1Mint(11))))
 (* ****** ****** *)
 
+(* ****** ****** *)
+// Yanchong Peng: This is the implementation of the 8-queen puzzle in LAMBDA
+
+// print dots in LAMBDA
+val 
+print_dots =
+T1Mfix2("pd", "j", T1Pfun(T1Pint, T1Pnil),
+T1Mif0(T1Mgt(j, T1Mint(0)), 
+T1Mapp(T1Mapp(T1Mlam2("sd1", T1Pnil, T1Mlam2("sd2", T1Pnil, sd2)), T1Mshow(T1Mstr(". "))), T1Mapp(pd, T1Msub(j, T1Mint(1)))), 
+T1Mnil())) where
+{
+  val pd = T1Mvar("pd")
+  val j = T1Mvar("j")
+  val sd2 = T1Mvar("sd2")
+}
+
+// print rows in LAMBDA
+val
+print_row =
+T1Mlam2("i", T1Pint, 
+T1Mapp(T1Mapp(T1Mapp(T1Mapp(
+T1Mlam2("s1", T1Pnil, T1Mlam2("s2", T1Pnil, 
+T1Mlam2("s3", T1Pnil, T1Mlam2("s4", T1Pnil, s4)))), 
+T1Mapp(print_dots, i)), 
+T1Mshow(T1Mstr("Q "))), 
+T1Mapp(print_dots, T1Msub(T1Mint(7), i))), 
+T1Mshow(T1Mstr("\n")))) where
+{
+  val i = T1Mvar("i")
+  val s4 = T1Mvar("s4")
+}
+
+// print boards in LAMBDA
+val 
+type_bd = 
+T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, 
+T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, T1Pint)))))))
+
+val
+print_board =
+T1Mlam2("bd", type_bd,
+T1Mapp(T1Mapp(T1Mapp(T1Mapp(T1Mapp(T1Mapp(T1Mapp(T1Mapp(T1Mapp(
+T1Mlam2("pd1", T1Pnil, T1Mlam2("pd2", T1Pnil,
+T1Mlam2("pd3", T1Pnil, T1Mlam2("pd4", T1Pnil,
+T1Mlam2("pd5", T1Pnil, T1Mlam2("pd6", T1Pnil,
+T1Mlam2("pd7", T1Pnil, T1Mlam2("pd8", T1Pnil,
+T1Mlam2("pd9", T1Pnil, pd9))))))))),
+T1Mapp(print_row, T1Mfst(bd))),
+T1Mapp(print_row, T1Mfst(T1Msnd(bd)))),
+T1Mapp(print_row, T1Mfst(T1Msnd(T1Msnd(bd))))),
+T1Mapp(print_row, T1Mfst(T1Msnd(T1Msnd(T1Msnd(bd)))))),
+T1Mapp(print_row, T1Mfst(T1Msnd(T1Msnd(T1Msnd(T1Msnd(bd))))))),
+T1Mapp(print_row, T1Mfst(T1Msnd(T1Msnd(T1Msnd(T1Msnd(T1Msnd(bd)))))))),
+T1Mapp(print_row, T1Mfst(T1Msnd(T1Msnd(T1Msnd(T1Msnd(T1Msnd(T1Msnd(bd))))))))),
+T1Mapp(print_row, T1Msnd(T1Msnd(T1Msnd(T1Msnd(T1Msnd(T1Msnd(T1Msnd(bd))))))))),
+T1Mshow(T1Mstr("\n")))) where
+{
+  val bd = T1Mvar("bd")
+  val pd9 = T1Mvar("pd9")
+}
+
+// Yanchong Peng: print board example (test print LAMBDA)
+val _ = 
+t1erm_interp0(T1Mapp(print_board, 
+T1Mtup(T1Mint(0), T1Mtup(T1Mint(1), T1Mtup(T1Mint(2), T1Mtup(T1Mint(3), 
+T1Mtup(T1Mint(4), T1Mtup(T1Mint(5), T1Mtup(T1Mint(6), T1Mint(7))))))))))
 
 
+
+
+val 
+seq = 
+T1Mapp(T1Mapp(T1Mlam2("x", T1Pnil, 
+T1Mlam2("y", T1Pnil, y)), T1Mshow(T1Mstr("a"))),
+T1Mshow(T1Mstr("b"))) where 
+{
+  val y = T1Mvar("y")
+}
+val _ = t1erm_interp0(seq)
+
+val print_puzzle_test = T1Mshow(T1Mstr("a\n"))
+val () =
+println!("print_puzzle: ", t1erm_oftype0(print_puzzle_test))
+val () =
+print!("print_puzzle('a') = ")
+val _ = t1erm_interp0(print_puzzle_test)
+(* ****** ****** *)
+
+// val
+// is_prime2 = 
+// T1Mapp(
+// T1Mfix2("f", "i", T1Pfun(T1Pint, T1Pbtf), 
+// T1Mlam2("n", T1Pint, 
+// T1Mif0(
+// T1Mgt(T1Mmul(i, i), n), 
+// T1Mbtf(true), 
+// T1Mif0(
+// T1Meq(T1Mmod(n, i), T1Mint(0)), 
+// T1Mbtf(false), 
+// T1Mapp(f, T1Madd(i, T1Mint(1))))))), 
+// T1Mint(2)) where
+// {
+//   val f = T1Mvar("f")
+//   val n = T1Mvar("n")
+//   val i = T1Mvar("i")
+// }
+// (* ****** ****** *)
+// // Yanchong Peng: test [isPrime] in LAMBDA
+// val () =
+// println!("is_prime2: ", t1erm_oftype0(is_prime2))
+// val () =
+// println!("is_prime2(10) = ", t1erm_interp0(T1Mapp(is_prime2, T1Mint(10))))
+// val () =
+// println!("is_prime2(11) = ", t1erm_interp0(T1Mapp(is_prime2, T1Mint(11))))
+// (* ****** ****** *)
 (* end of [lambdas_lambda2.dats] *)
