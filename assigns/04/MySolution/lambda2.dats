@@ -524,6 +524,25 @@ val-
 T1Vint(i1) = tv1 and T1Vint(i2) = tv2 in T1Vbtf(i1 != i2)
 end
 //
+| "andalso" =>
+let
+val-
+mylist_cons(tv1, tvs) = tvs
+val-
+mylist_cons(tv2, tvs) = tvs
+val-
+T1Vbtf(i1) = tv1 and T1Vbtf(i2) = tv2 in T1Vbtf(i1 andalso i2)
+end
+| "abs" =>
+let
+val-
+mylist_cons(tv1, tvs) = tvs
+val-
+T1Vint(i1) = tv1 
+in 
+T1Vint(abs(i1))
+end
+//
 | "show" =>
 let
 val-
@@ -586,6 +605,15 @@ fun
 T1Mneq // not-equal
 (a1: t1erm, a2: t1erm): t1erm =
 T1Mopr("!=", mylist_pair(a1, a2))
+//
+fun
+T1Mandalso
+(a1: t1erm, a2: t1erm): t1erm =
+T1Mopr("andalso", mylist_pair(a1, a2))
+fun
+T1Mabs
+(a: t1erm): t1erm =
+T1Mopr("abs", mylist_sing(a))
 //
 (* ****** ****** *)
 // Yanchong Peng: This is my implementation of T1Mshow
@@ -1132,6 +1160,24 @@ val-true = t1ype_unify(tp1, T1Pint)
 val-true = t1ype_unify(tp2, T1Pint) in T1Pbtf
 end
 //
+| "andalso" =>
+let
+val-
+mylist_cons(tp1, tps) = tps
+val-
+mylist_cons(tp2, tps) = tps
+val-true = t1ype_unify(tp1, T1Pbtf)
+val-true = t1ype_unify(tp2, T1Pbtf) in T1Pbtf
+end
+| "abs" =>
+let
+val-
+mylist_cons(tp1, tps) = tps
+val-true = t1ype_unify(tp1, T1Pint)
+in 
+T1Pint
+end
+//
 (* ****** ****** *)
 // Yanchong Peng: This is the implementation of type checking for show
 | "show" =>
@@ -1242,11 +1288,6 @@ T1Mshow(T1Mstr("\n")))) where
 }
 
 // print boards in LAMBDA
-val 
-type_bd = 
-T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, 
-T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, T1Pint)))))))
-
 val
 print_board =
 T1Mlam2("bd", type_bd,
@@ -1268,34 +1309,218 @@ T1Mshow(T1Mstr("\n")))) where
 {
   val bd = T1Mvar("bd")
   val pd9 = T1Mvar("pd9")
+  val 
+  type_bd = 
+  T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, 
+  T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, T1Pint)))))))
 }
 
-// Yanchong Peng: print board example (test print LAMBDA)
+// print board example (test print LAMBDA)
 val _ = 
 t1erm_interp0(T1Mapp(print_board, 
 T1Mtup(T1Mint(0), T1Mtup(T1Mint(1), T1Mtup(T1Mint(2), T1Mtup(T1Mint(3), 
 T1Mtup(T1Mint(4), T1Mtup(T1Mint(5), T1Mtup(T1Mint(6), T1Mint(7))))))))))
 
+// board get function in LAMBDA
+val 
+board_get =
+T1Mlam2("ibd", type_ibd,
+T1Mif0(T1Meq(i, T1Mint(0)), T1Mfst(bd), 
+T1Mif0(T1Meq(i, T1Mint(1)), T1Mfst(T1Msnd(bd)), 
+T1Mif0(T1Meq(i, T1Mint(2)), T1Mfst(T1Msnd(T1Msnd(bd))), 
+T1Mif0(T1Meq(i, T1Mint(3)), T1Mfst(T1Msnd(T1Msnd(T1Msnd(bd)))), 
+T1Mif0(T1Meq(i, T1Mint(4)), T1Mfst(T1Msnd(T1Msnd(T1Msnd(T1Msnd(bd))))), 
+T1Mif0(T1Meq(i, T1Mint(5)), T1Mfst(T1Msnd(T1Msnd(T1Msnd(T1Msnd(T1Msnd(bd)))))), 
+T1Mif0(T1Meq(i, T1Mint(6)), T1Mfst(T1Msnd(T1Msnd(T1Msnd(T1Msnd(T1Msnd(T1Msnd(bd))))))), 
+T1Mif0(T1Meq(i, T1Mint(7)), T1Msnd(T1Msnd(T1Msnd(T1Msnd(T1Msnd(T1Msnd(T1Msnd(bd))))))), 
+T1Mint(~1)))))))))) where
+{
+  val ibd = T1Mvar("ibd")
+  val i = T1Mfst(ibd)
+  val bd = T1Msnd(ibd)
+  (*
+  // parameters type of board get function
+  fst(type_ibd): index i
+  snd(type_ibd): board bd
+  *)
+  val
+  type_ibd =
+  T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, 
+  T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, T1Pint))))))))
+}
 
+// board set function in LAMBDA
+val 
+board_set = 
+T1Mlam2("ijbd", type_ijbd, 
+T1Mif0(T1Meq(i, T1Mint(0)), T1Mtup(j, T1Mtup(x1, T1Mtup(x2, 
+T1Mtup(x3, T1Mtup(x4, T1Mtup(x5, T1Mtup(x6, x7))))))), 
+T1Mif0(T1Meq(i, T1Mint(1)), T1Mtup(x0, T1Mtup(j, T1Mtup(x2, 
+T1Mtup(x3, T1Mtup(x4, T1Mtup(x5, T1Mtup(x6, x7))))))), 
+T1Mif0(T1Meq(i, T1Mint(2)), T1Mtup(x0, T1Mtup(x1, T1Mtup(j, 
+T1Mtup(x3, T1Mtup(x4, T1Mtup(x5, T1Mtup(x6, x7))))))), 
+T1Mif0(T1Meq(i, T1Mint(3)), T1Mtup(x0, T1Mtup(x1, T1Mtup(x2, 
+T1Mtup(j, T1Mtup(x4, T1Mtup(x5, T1Mtup(x6, x7))))))), 
+T1Mif0(T1Meq(i, T1Mint(4)), T1Mtup(x0, T1Mtup(x1, T1Mtup(x2, 
+T1Mtup(x3, T1Mtup(j, T1Mtup(x5, T1Mtup(x6, x7))))))), 
+T1Mif0(T1Meq(i, T1Mint(5)), T1Mtup(x0, T1Mtup(x1, T1Mtup(x2, 
+T1Mtup(x3, T1Mtup(x4, T1Mtup(j, T1Mtup(x6, x7))))))), 
+T1Mif0(T1Meq(i, T1Mint(6)), T1Mtup(x0, T1Mtup(x1, T1Mtup(x2, 
+T1Mtup(x3, T1Mtup(x4, T1Mtup(x5, T1Mtup(j, x7))))))), 
+T1Mif0(T1Meq(i, T1Mint(7)), T1Mtup(x0, T1Mtup(x1, T1Mtup(x2, 
+T1Mtup(x3, T1Mtup(x4, T1Mtup(x5, T1Mtup(x6, j))))))), 
+bd))))))))) where
+{
+  val ijbd = T1Mvar("ijbd")
+  val i = T1Mfst(ijbd)
+  val j = T1Mfst(T1Msnd(ijbd))
+  val bd = T1Msnd(T1Msnd(ijbd))
+  val x0 = T1Mfst(bd)
+  val x1 = T1Mfst(T1Msnd(bd))
+  val x2 = T1Mfst(T1Msnd(T1Msnd(bd)))
+  val x3 = T1Mfst(T1Msnd(T1Msnd(T1Msnd(bd))))
+  val x4 = T1Mfst(T1Msnd(T1Msnd(T1Msnd(T1Msnd(bd)))))
+  val x5 = T1Mfst(T1Msnd(T1Msnd(T1Msnd(T1Msnd(T1Msnd(bd))))))
+  val x6 = T1Mfst(T1Msnd(T1Msnd(T1Msnd(T1Msnd(T1Msnd(T1Msnd(bd)))))))
+  val x7 = T1Msnd(T1Msnd(T1Msnd(T1Msnd(T1Msnd(T1Msnd(T1Msnd(bd)))))))
+  (*
+  // parameters type of board set function
+  fst(type_ijbd): index i
+  fst(snd(type_ijbd)): index j
+  snd(snd(type_ijbd)): board bd
+  *)
+  val
+  type_ijbd =
+  T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, 
+  T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, T1Pint)))))))))
+}
 
+(* 
+// Yanchong Peng: To handle well test1 and test2, I also implemented operators "andalso" and "abs"
+*)
+// safety test1 function in LAMBDA
+val
+safety_test1 =
+T1Mlam2("ij01", type_ij01, 
+T1Mandalso(T1Mneq(j0, j1), 
+T1Mneq(T1Mabs(T1Msub(i0, i1)), T1Mabs(T1Msub(j0, j1))))) where
+{
+  val ij01 = T1Mvar("ij01")
+  val i0 = T1Mfst(ij01)
+  val j0 = T1Mfst(T1Msnd(ij01))
+  val i1 = T1Mfst(T1Msnd(T1Msnd(ij01)))
+  val j1 = T1Msnd(T1Msnd(T1Msnd(ij01)))
+  (*
+  // parameters type of safety test1 function
+  fst(type_ij01): index i0
+  fst(snd(type_ij01)): index j0
+  fst(snd(snd(type_ij01))): index i1
+  snd(snd(snd(type_ij01))): index j1
+  *)
+  val 
+  type_ij01 = 
+  T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, T1Pint)))
+}
+
+// safety test2 function in LAMBDA
+val
+safety_test2 = 
+T1Mfix2("f", "ij0ibd", T1Pfun(type_ij0ibd, T1Pbtf),
+T1Mif0(T1Mgte(i, T1Mint(0)), 
+T1Mif0(T1Mapp(safety_test1, paras_t1), 
+T1Mapp(f, paras_t2), 
+T1Mbtf(false)), 
+T1Mbtf(true))) where
+{
+  val ij0ibd = T1Mvar("ij0ibd")
+  val f = T1Mvar("f")
+  val i0 = T1Mfst(ij0ibd)
+  val j0 = T1Mfst(T1Msnd(ij0ibd))
+  val i = T1Mfst(T1Msnd(T1Msnd(ij0ibd)))
+  val bd = T1Msnd(T1Msnd(T1Msnd(ij0ibd)))
+  // parameters for safety_test1
+  val paras_t1 = T1Mtup(i0, T1Mtup(j0, T1Mtup(i, 
+  T1Mapp(board_get, T1Mtup(i, bd)))))
+  // parameters for safety_test2
+  val paras_t2 = T1Mtup(i0, T1Mtup(j0, 
+  T1Mtup(T1Msub(i, T1Mint(1)), bd)))
+  (*
+  // parameters type of safety test2 function
+  fst(type_ij0ibd): index i0
+  fst(snd(type_ij0ibd)): index j0
+  fst(snd(snd(type_ij0ibd))): index i
+  snd(snd(snd(type_ij0ibd))): board bd
+  *)
+  val 
+  type_ij0ibd = 
+  T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, 
+  T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, T1Pint))))))))))
+}
+
+// search function in LAMBDA
+val
+search =
+T1Mfix2("f", "s_paras", T1Pfun(type_s_paras, T1Pint), 
+T1Mif0(T1Mlt(j, T1Mint(8)), 
+T1Mif0(test, 
+T1Mif0(T1Meq(T1Madd(i, T1Mint(1)), T1Mint(8)), 
+T1Mapp(T1Mapp(T1Mapp(T1Mlam2("pps1", T1Pnil, T1Mlam2("pps2", T1Pnil, 
+T1Mlam2("pps3", T1Pnil, pps3))), print_sol), 
+T1Mapp(print_board, bd1)), T1Mapp(f, s_paras1)), 
+T1Mapp(f, s_paras2)), 
+T1Mapp(f, s_paras3)), 
+T1Mif0(T1Mgt(i, T1Mint(0)), 
+T1Mapp(f, s_paras4), nsol))) where
+{
+  val f = T1Mvar("f")
+  val s_paras = T1Mvar("s_paras")
+  val i = T1Mfst(s_paras)
+  val j = T1Mfst(T1Msnd(s_paras))
+  val nsol = T1Mfst(T1Msnd(T1Msnd(s_paras)))
+  val bd = T1Msnd(T1Msnd(T1Msnd(s_paras)))
+  val test = T1Mapp(safety_test2, T1Mtup(i, T1Mtup(j, T1Mtup(T1Msub(i, T1Mint(1)), bd))))
+  val bd1 = T1Mapp(board_set, T1Mtup(i, T1Mtup(j, bd)))
+  val p3 = T1Mvar("p3")
+  val pps3 = T1Mvar("pps3")
+  val s_paras1 = T1Mtup(i, T1Mtup(T1Madd(j, T1Mint(1)), T1Mtup(T1Madd(nsol, T1Mint(1)), bd)))
+  val s_paras2 = T1Mtup(T1Madd(i, T1Mint(1)), T1Mtup(T1Mint(0), T1Mtup(nsol, bd1)))
+  val s_paras3 = T1Mtup(i, T1Mtup(T1Madd(j, T1Mint(1)), T1Mtup(nsol, bd)))
+  val s_paras4_bd = T1Mapp(board_get, T1Mtup(T1Msub(i, T1Mint(1)), bd))
+  val s_paras4 = T1Mtup(T1Msub(i, T1Mint(1)), T1Mtup(T1Madd(s_paras4_bd, T1Mint(1)), T1Mtup(nsol, bd)))
+  val 
+  print_sol = 
+  T1Mapp(T1Mapp(T1Mapp(T1Mlam2("p1", T1Pnil, 
+  T1Mlam2("p2", T1Pnil, T1Mlam2("p3", T1Pnil, p3))), 
+  T1Mshow(T1Mstr("Solution #"))), T1Mshowval(T1Madd(nsol, T1Mint(1)))), 
+  T1Mshow((T1Mstr(":\n\n"))))
+  (*
+  // parameters type of search function
+  fst(type_s_paras): index i
+  fst(snd(type_s_paras)): index j
+  fst(snd(snd(type_s_paras))): index nsol
+  snd(snd(snd(type_s_paras))): board bd
+  *)
+  val
+  type_s_paras =
+  T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, 
+  T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, T1Ptup(T1Pint, T1Pint))))))))))
+}
+
+// test search function
+val
+bd =
+T1Mtup(T1Mint(0), T1Mtup(T1Mint(0), T1Mtup(T1Mint(0), T1Mtup(T1Mint(0), 
+T1Mtup(T1Mint(0), T1Mtup(T1Mint(0), T1Mtup(T1Mint(0), T1Mint(0))))))))
 
 val 
-seq = 
-T1Mapp(T1Mapp(T1Mlam2("x", T1Pnil, 
-T1Mlam2("y", T1Pnil, y)), T1Mshow(T1Mstr("a"))),
-T1Mshow(T1Mstr("b"))) where 
-{
-  val y = T1Mvar("y")
-}
-val _ = t1erm_interp0(seq)
+paras_test = T1Mtup(T1Mint(0), T1Mtup(T1Mint(0), T1Mtup(T1Mint(0), bd)))
 
-val print_puzzle_test = T1Mshow(T1Mstr("a\n"))
-val () =
-println!("print_puzzle: ", t1erm_oftype0(print_puzzle_test))
-val () =
-print!("print_puzzle('a') = ")
-val _ = t1erm_interp0(print_puzzle_test)
-(* ****** ****** *)
+val
+nsol = 
+t1erm_interp0(T1Mapp(search, paras_test))
+
+val () = println!("nsol = ", nsol)
+val () = println!("\n")
 
 // val
 // is_prime2 = 
