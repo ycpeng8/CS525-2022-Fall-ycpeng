@@ -17,7 +17,7 @@ mymalloc(size_t n) {
 /* ****** ****** */
 
 extern
-lamval1
+void
 LAMVAL_print(lamval1 x)
 {
   int tag;
