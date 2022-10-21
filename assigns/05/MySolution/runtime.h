@@ -185,6 +185,29 @@ LAMOPR_mul(lamval1 x, lamval1 y)
 /*
 Yanchong Peng: These are my implementation
 */
+extern
+lamval1
+LAMOPR_mod(lamval1 x, lamval1 y)
+{
+  /*
+  assert(x->tag == TAGint);
+  assert(y->tag == TAGint);
+  */
+  return
+  LAMVAL_int(((lamval1_int)x)->data % ((lamval1_int)y)->data);
+}
+
+extern 
+lamval1
+LAMOPR_ieq(lamval1 x, lamval1 y)
+{
+  /*
+  assert(x->tag == TAGint);
+  assert(y->tag == TAGint);
+  */
+  return
+  LAMVAL_int(((lamval1_int)x)->data == ((lamval1_int)y)->data ? 1 : 0);
+}
 
 /* ****** ****** */
 
