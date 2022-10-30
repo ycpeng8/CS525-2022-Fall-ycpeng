@@ -8,6 +8,8 @@ implement main0() = ()
 Problem 1:
 I generate all the natural number pairs 
 whose sum equal 0, then 1,2,3,... in ascending order.
+In this way, we can traverse every value of either of two arguments, avoiding
+infinitely traversing (0, 0), (0, 1), (0, 2), ...
 For instance, in my test, the order of generated pair should be:
 p = (0, 0)          sum: 0
 p = (0, 1)          sum: 1
