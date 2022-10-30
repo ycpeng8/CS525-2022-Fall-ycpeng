@@ -27,7 +27,7 @@ HX-2022-10-26: 20 points
 Assume that 'f0' is a binary function in pairs of natural
 numbers such that 'f0' is non-decreasing on either of its
 arguments. For instance, f0(i, j) = i+j is such a function
-but f0(i, j) = i - j is not.
+but f0(i, j) = i-j is not.
 Please implement a function 'stream_fenum2' that enumerates
 *all* the possible values of 'f0' in an ascending order:
 *)
