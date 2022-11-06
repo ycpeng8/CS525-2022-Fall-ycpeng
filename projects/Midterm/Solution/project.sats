@@ -28,6 +28,10 @@ T1Pext of tpVar
 T1Pfun of (t1ype, t1ype)
 |
 T1Ptup of (t1ype, t1ype)
+//
+|
+T1Plist of (t1ype(*elt*))
+//
 |
 T1Pnone of (s1exp(*unsupported*))
 //
@@ -84,20 +88,28 @@ typedef t1var = string
 datatype
 t1dcl =
 |
-T1Dbind of (t1var, t1erm)
+T1DCLbind of (t1var, t1erm)
+(*
 |
-T1Dnone of (d1ecl(*unsupported*))
+T1DCLnone of (d1ecl(*unsupported*))
+*)
 //
 and
 t1erm =
+//
+| T1Mnil of ()
 //
 | T1Mint of int
 | T1Mbtf of bool
 | T1Mstr of string
 //
-| T1Mvar of t1var
-| T1Mlam of (t1var, t1erm)
-| T1Mapp of (t1erm, t1erm)
+|
+T1Mvar of t1var
+|
+T1Mlam of
+(t1var, t1ypeopt, t1erm)
+|
+T1Mapp of (t1erm, t1erm)
 //
 |
 T1Mopr of
@@ -108,7 +120,23 @@ T1Mif0 of
 (t1erm, t1erm, t1ermopt)
 //
 |
+T1Mfst of (t1erm)
+|
+T1Msnd of (t1erm)
+|
+T1Mtup of (t1erm, t1erm)
+//
+|
+T1Mseq of (t1ermlst)
+//
+|
 T1Mlet of (t1dclist, t1erm)
+//
+|
+T1Mfix of
+( t1var
+, t1var, t1ypeopt(*arg*)
+, t1erm, t1ypeopt(*res*))
 //
 |
 T1Manno of (t1erm, t1ype(*anno*))
@@ -142,6 +170,42 @@ overload print with print_t1erm
 overload fprint with fprint_t1erm
 //
 (* ****** ****** *)
+typedef
+t1ctx =
+mylist(@(t1var, t1ype))
+(* ****** ****** *)
+//
+datatype t1val =
+//
+| T1Vnil of ()
+//
+| T1Vint of int
+| T1Vbtf of bool
+| T1Vstr of string
+//
+| T1Vtup of (t1val, t1val)
+//
+| T1Vlam of (t1erm, t1env)
+| T1Vfix of (t1erm, t1env)
+//
+| // for constructors
+T1Vcons of (int(*tag*), t1valist)
+//
+where
+t1env =
+mylist(@(t1var, t1val))
+and t1valist = mylist(t1val)
+//
+(* ****** ****** *)
+fun
+print_t1val(t1val): void
+fun
+fprint_t1val
+(out:FILEref, t1v0:t1val): void
+(* ****** ****** *)
+overload print with print_t1val
+overload fprint with fprint_t1val
+(* ****** ****** *)
 //
 fun
 trans1m_s1exp: s1exp -> t1ype
@@ -166,6 +230,27 @@ trans1m_d1ecl: d1ecl -> t1dcl
 fun
 trans1m_d1eclist: d1eclist -> t1dclist
 //
+(* ****** ****** *)
+//
+fun
+trans1m_main_fun: d1eclist -> t1ermopt
+//
+(* ****** ****** *)
+(*
+HX: for the interpreter
+*)
+fun
+t1erm_interp0(t1erm): t1val
+fun
+t1dclist_interp0(t1dclist): t1env
+(* ****** ****** *)
+(*
+HX: for the type-checker
+*)
+fun
+t1erm_oftype0(t1erm): t1ype
+fun
+t1dclist_interp0(t1dclist): t1ctx
 (* ****** ****** *)
 //
 fun

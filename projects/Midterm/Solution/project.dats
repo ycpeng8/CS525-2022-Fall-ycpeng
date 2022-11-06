@@ -38,15 +38,8 @@ UN = "prelude/SATS/unsafe.sats"
 #dynload "./project_trans.dats"
 #dynload "./project_t1ype.dats"
 #dynload "./project_t1erm.dats"
+#dynload "./project_t1val.dats"
 
-(* ****** ****** *)
-//
-extern
-fun
-xatsopt_strunq
-( source // "<string>" -> <string>
-: string): string = "ext#xatsopt_strunq"
-//
 (* ****** ****** *)
 //
 extern
@@ -75,12 +68,14 @@ process_given(given: string): void
 implement
 process_stdin() =
 (
-  process_fpath(fp0)
-) where
+  process_fpath(fp0)) where
 {
   val
   fp0 = $FP0.the_filpath_stdin
-}
+} (*where*) // end of [process_stdin]
+
+(* ****** ****** *)
+
 implement
 process_fpath(fp0) =
 let
@@ -134,7 +129,7 @@ else
 // ~(stadyn >= 0) // not for loading code
 } (* end of [else] *)
 //
-end // end of [process_fpath]
+end (*let*) // end of [process_fpath(fp0)]
 
 (* ****** ****** *)
 
@@ -158,7 +153,7 @@ println!
 //
 in
   process_fpath(fp0)
-end // end of [process_given]
+end (*let*) // end of [process_given(arg0)]
 
 in(*in-of-local*)
 
