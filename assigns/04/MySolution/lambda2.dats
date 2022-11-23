@@ -131,6 +131,35 @@ fprint!(out, "T1Pfun(", tp1, ";", tp2, ")")
 T1Ptup(tp1, tp2) =>
 fprint!(out, "T1Ptup(", tp1, ";", tp2, ")")
 )
+
+(* ****** ****** *)
+
+typedef
+tpctx =
+mylist(@(tmvar, t1ype))
+
+(* ****** ****** *)
+//
+extern
+fun
+t1erm_oftype0(t1erm): t1ype
+extern
+fun
+t1erm_oftype1(t1erm, tpctx): t1ype
+//
+extern
+fun
+t1ermlst_oftype1
+(tms: t1ermlst, xts: tpctx): t1ypelst
+//
+extern
+fun
+t1erm_oftype1_var(t1erm, tpctx): t1ype
+extern
+fun
+t1erm_oftype1_opr(t1erm, tpctx): t1ype
+//
+(* ****** ****** *)
 //
 (* ****** ****** *)
 //
@@ -833,34 +862,7 @@ tpVar_occurs_t1ype(X2, tp1)
 then false else (!X2 := myoptn_cons(tp1); true)
 )
 //
-(* ****** ****** *)
 
-typedef
-tpctx =
-mylist(@(tmvar, t1ype))
-
-(* ****** ****** *)
-//
-extern
-fun
-t1erm_oftype0(t1erm): t1ype
-extern
-fun
-t1erm_oftype1(t1erm, tpctx): t1ype
-//
-extern
-fun
-t1ermlst_oftype1
-(tms: t1ermlst, xts: tpctx): t1ypelst
-//
-extern
-fun
-t1erm_oftype1_var(t1erm, tpctx): t1ype
-extern
-fun
-t1erm_oftype1_opr(t1erm, tpctx): t1ype
-//
-(* ****** ****** *)
 
 implement
 t1erm_oftype0(tm0) =

@@ -1,0 +1,1 @@
+test: t1mapp, t1mlam, t1mif0
