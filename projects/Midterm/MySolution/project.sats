@@ -259,4 +259,70 @@ project_main0
 //
 (* ****** ****** *)
 
+//
+datatype
+//
+t2cmp =
+T2CMP of
+(t2bndlst, t2box)
+//
+and
+t2box =
+//
+| T2Vnil of ()
+| T2Vint of int
+| T2Vbtf of bool
+| T2Vstr of string
+//
+| T2Varg of (t2arg)
+| T2Vreg of (t2reg)
+//
+| T2Vlam of (t2cmp)
+//
+and t2ins =
+//
+| 
+T2Imov of
+(t2box, t2box)
+//
+|
+T2Ical of
+(t2box, t2box) // function call
+//
+|
+T2Iopr of
+(t1opr, t2boxlst) // operator call
+//
+|
+T2Ifst of (t2box) // first projection
+|
+T2Isnd of (t2box) // second projection
+|
+T2Itup of (t2box, t2box) // pair formation
+//
+|
+T2Iif0 of (t2box, t2bndlst, t2bndlst)
+//
+and
+t2bnd =
+T2BND of (t2reg, t2ins)
+//
+where
+t2arg = int and
+t2reg = int and
+t2boxlst = mylist(t2box) and
+t2bndlst = mylist(t2bnd) and t2inslst = mylist(t2ins)
+//
+(* ****** ****** *)
+
+typedef t2cmplst = mylist(t2cmp)
+
+(* ****** ****** *)
+//
+typedef
+t2env =
+mylist(@(t1var, t2cmp))
+//
+(* ****** ****** *)
+
 (* end of [CS525-2022-Fall/Midterm_project.sats] *)

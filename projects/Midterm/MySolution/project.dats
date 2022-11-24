@@ -35,7 +35,7 @@ UN = "prelude/SATS/unsafe.sats"
 #staload "./project_interp1.dats"
 #staload "./project_tcheck2.dats"
 #staload "./project_atrans3.dats"
-#staload "./project_emitter.dats"
+// #staload "./project_emitter.dats"
 
 (* ****** ****** *)
 
@@ -46,7 +46,7 @@ UN = "prelude/SATS/unsafe.sats"
 #dynload "./project_interp1.dats"
 #dynload "./project_tcheck2.dats"
 #dynload "./project_atrans3.dats"
-#dynload "./project_emitter.dats"
+// #dynload "./project_emitter.dats"
 
 (* ****** ****** *)
 //
@@ -127,17 +127,26 @@ tread01_d1eclist(d1cs)
 //
 val
 t1ds = trans1m_d1eclist(d1cs)
+// val
+// t1v = t1dclist_interp0(t1ds)
 val
 t1cs = t1dclist_atrans0(t1ds)
 val () =
 println!
 ("process_fpath: t1ds = ", t1ds)
+// val () =
+// println!
+// ("process_fpath: t1v = ", t1v)
 val () =
 println!
 ("process_fpath: t1cs = ", t1cs)
-//
+
 val () =
-print_c(t1cs)
+println!
+("C Code: \n")
+
+val () = print_c(t1cs)
+
 } (* end of [then] *)
 else
 {

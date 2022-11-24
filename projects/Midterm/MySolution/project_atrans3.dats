@@ -14,59 +14,7 @@
 HX-2022-10-19:
 For A-normal form
 *)
-//
-datatype
-//
-t2cmp =
-T2CMP of
-(t2bndlst, t2box)
-//
-and
-t2box =
-//
-| T2Vnil of ()
-| T2Vint of int
-| T2Vbtf of bool
-| T2Vstr of string
-//
-| T2Varg of (t2arg)
-| T2Vreg of (t2reg)
-//
-| T2Vlam of (t2cmp)
-//
-and t2ins =
-//
-|
-T2Ical of
-(t2box, t2box) // function call
-//
-|
-T2Iopr of
-(t1opr, t2boxlst) // operator call
-//
-|
-T2Ifst of (t2box) // first projection
-|
-T2Isnd of (t2box) // second projection
-|
-T2Itup of (t2box, t2box) // pair formation
-//
-|
-T2Iif0 of (t2box, t2bndlst, t2bndlst)
-//
-and
-t2bnd =
-T2BND of (t2reg, t2ins)
-//
-where
-t2arg = int and
-t2reg = int and
-t2boxlst = mylist(t2box) and
-t2bndlst = mylist(t2bnd) and t2inslst = mylist(t2ins)
-//
-(* ****** ****** *)
 
-typedef t2cmplst = mylist(t2cmp)
 
 
 //
@@ -121,7 +69,7 @@ overload fprint with fprint_t2ins
 //
 extern
 fun
-print_t2cmp(t2cmp): void
+print_t2cmp(cmp: t2cmp): void
 extern
 fun
 fprint_t2cmp
@@ -130,13 +78,7 @@ fprint_t2cmp
 overload print with print_t2cmp
 overload fprint with fprint_t2cmp
 //
-(* ****** ****** *)
-//
-typedef
-t2env =
-mylist(@(t1var, t2cmp))
-//
-(* ****** ****** *)
+
 (*
 HX: for the a-norm-trans
 *)
@@ -163,6 +105,10 @@ extern
 fun
 t1erm_atrans1_opr
 (tm0: t1erm, xvs: t2env): t2cmp
+extern
+fun
+t1erm_atrans1_var
+(t1m0: t1erm, xvs: t2env): t2cmp
 (* ****** ****** *)
 //
 implement
@@ -297,6 +243,10 @@ fprint_t2ins(out, t2i0) =
 //
 case+ t2i0 of
 |
+T2Imov(t2r, t2x1) =>
+fprint!
+(out, "T2Imov(",t2r,";",t2x1,")")
+|
 T2Ical(t2x1, t2x2) =>
 fprint!
 (out, "T2Ical(",t2x1,";",t2x2,")")
@@ -390,8 +340,28 @@ end
 
 (* ****** ****** *)
 implement
+t1erm_atrans1_var
+(t1m0, xvs) =
+let
+val-
+T1Mvar(x) = t1m0
+in
+find(xvs) where
+{
+fun find(xvs: t2env): t2cmp=
+(
+case- xvs of
+| mylist_cons(xv1, xvs) =>
+(if x = xv1.0 then xv1.1 else find(xvs))
+)
+}
+end
+(* ****** ****** *)
+
+(* ****** ****** *)
+implement
 t1erm_atrans1
-  (t1m0, env0) =
+(t1m0, env0) =
 (
 case+ t1m0 of
 |
@@ -449,8 +419,8 @@ val body = t1erm_atrans1(t1m1, env1)
 } (*where*) // end of [T1Mlam(targ,topt,t1m1)]
 //
 |
-T1Mvar(variable) =>
-t2cmp_val(T2Vstr(variable))
+T1Mvar _ =>
+t1erm_atrans1_var(t1m0, env0)
 //
 |
 T1Mapp
@@ -490,6 +460,9 @@ T2CMP
 t1erm_atrans1(tm2, env0)
 val
 treg = t2reg_new()
+val
+bndmov2 = 
+T2BND(treg, T2Imov(T2Vreg(treg), t2x2))
 in
 case- tmopt of
 | myoptn_nil() =>
@@ -500,8 +473,10 @@ bds3 = mylist_nil()
 val
 bnds = mylist_append(bds1, bds2)
 val
+bnds = bnds + bndmov2
+val
 tbnd =
-T2BND(treg, T2Iif0(t2x1, bds2, bds3))
+T2BND(treg, T2Iif0(t2x1, bds2+bndmov2, bds3))
 in
 T2CMP(bnds + tbnd, T2Vreg(treg))
 end
@@ -514,10 +489,19 @@ T2CMP
 (bds3, t2x3) =
 t1erm_atrans1(tm3, env0)
 val
-bnds = mylist_append(mylist_append(bds1, bds2), bds3)
+bndmov3 = 
+T2BND(treg, T2Imov(T2Vreg(treg), t2x3))
+val
+bnds = mylist_append(bds1, bds2)
+val
+bnds = bnds + bndmov2
+val
+bnds = mylist_append(bnds, bds3)
+val
+bnds = bnds + bndmov3
 val
 tbnd =
-T2BND(treg, T2Iif0(t2x1, bds2, bds3))
+T2BND(treg, T2Iif0(t2x1, bds2+bndmov2, bds3+bndmov3))
 in
 T2CMP(bnds + tbnd, T2Vreg(treg))
 end
@@ -584,10 +568,10 @@ T1Mfix
 val t2c0x = t2cmp_val(T2Varg(0))
 val envx = 
 mylist_cons(@(xnm, t2c0x), env0)
-// val bodyx = t1erm_atrans1(tm1, envx)
-val t2c0f = t2cmp_val(T2Varg(0))
+val t2c0f = t2cmp_val(T2Varg(1))
 val envf = 
 mylist_cons(@(fnm, t2c0f), envx)
+// val bodyx = t1erm_atrans1(tm1, envx)
 val bodyf = t1erm_atrans1(tm1, envf)
 }
 //
