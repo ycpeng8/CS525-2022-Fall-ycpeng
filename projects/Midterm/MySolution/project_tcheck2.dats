@@ -265,7 +265,6 @@ end
 let
 val-
 mylist_cons(tp1, tps) = tps
-val-true = t1ype_unify(tp1, T1Pstring) 
 in
 if t1ype_unify(tp1, T1Pint)
 then T1Pnil
@@ -273,13 +272,14 @@ else if t1ype_unify(tp1, T1Pbool)
 then T1Pnil
 else if t1ype_unify(tp1, T1Pstring)
 then T1Pnil
-else 
+else
 (
 let
-val-true = t1ype_unify(tp1, T1Pstring)
+val-T1Plist(tp2) = tp1
 in
 T1Pnil
-end)
+end
+)
 end
 | "showval" =>
 let
@@ -444,6 +444,8 @@ case
 |
 (T1Ptup(tp11, tp12), T1Ptup(tp21, tp22)) =>
 (t1ype_unify(tp11, tp21) && t1ype_unify(tp12, tp22))
+|
+(T1Plist(tp11), T1Plist(tp21)) => t1ype_unify(tp11, tp21)
 | (_, _) => false 
 end // end of [let] // end of [t1ype_unify(tp1, tp2)]
 //

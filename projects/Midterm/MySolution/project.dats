@@ -127,25 +127,31 @@ tread01_d1eclist(d1cs)
 //
 val
 t1ds = trans1m_d1eclist(d1cs)
-// val
-// t1v = t1dclist_interp0(t1ds)
-val
-t1cs = t1dclist_atrans0(t1ds)
+
 val () =
 println!
 ("process_fpath: t1ds = ", t1ds)
+
+val
+t1cs = t1dclist_interp0(t1ds)
+
+val t1p = t1dclist_oftype0(t1ds)
+val () = 
+println!
+("Type Checking Pass!!!")
+
 // val () =
 // println!
 // ("process_fpath: t1v = ", t1v)
-val () =
-println!
-("process_fpath: t1cs = ", t1cs)
+// val () =
+// println!
+// ("process_fpath: t1cs = ", t1cs)
 
-val () =
-println!
-("C Code: \n")
+// val () =
+// println!
+// ("C Code: \n")
 
-val () = print_c(t1cs)
+// val () = print_c(t1cs)
 
 } (* end of [then] *)
 else

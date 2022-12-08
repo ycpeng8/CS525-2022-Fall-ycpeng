@@ -70,6 +70,28 @@ mylist_cons
 (t1erm_interp1(tm1, xvs), t1ermlst_interp1(tms, xvs))
 )
 
+fun 
+t1v_print(xv: t1val) =
+(
+case- xv of
+  | T1Vint(integer) => print(integer)
+  | T1Vbtf(boolean) => print(boolean)
+  | T1Vstr(string) => print(string)
+)
+
+fun
+interp_print_lst(tvlst: mylist(t1val)) =
+(
+case- tvlst of
+| mylist_nil() => print(")")
+| mylist_cons(xv, xs) =>
+{
+val () = t1v_print(xv)
+val () = print(", ")
+val () = interp_print_lst(xs)
+}
+)
+
 implement
 t1erm_interp1_opr
   (tm0, xvs) =
@@ -203,10 +225,27 @@ let
 val-
 mylist_cons(tv1, tvs) = tvs
 in
+(
   case- tv1 of
   | T1Vint(integer) => let val () = print(integer) in T1Vnil() end
   | T1Vbtf(boolean) => let val () = print(boolean) in T1Vnil() end
   | T1Vstr(string) => let val () = print(string) in T1Vnil() end
+  | T1Vcons(tag, tvlst) => 
+    let
+    if tag = 0
+    then 
+    {
+    val () = print("list_nil()") 
+    }
+    else 
+    {
+    val () = print("(")
+    val () = interp_print_lst(tvlst)
+    }
+    in
+    T1Vnil()
+    end
+)
 end
 | "list_nil" => 
 T1Vcons(0, mylist_nil())

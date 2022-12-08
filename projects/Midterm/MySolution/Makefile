@@ -41,7 +41,6 @@ project_t1val.dats \
 project_interp1.dats \
 project_tcheck2.dats \
 project_atrans3.dats \
-project_emitter.dats \
 
 ######
 
