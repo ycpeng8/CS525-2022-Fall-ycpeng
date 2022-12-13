@@ -134,10 +134,10 @@ println!
 val
 t1cs = t1dclist_interp0(t1ds)
 
-// val t1p = t1dclist_oftype0(t1ds)
-// val () = 
-// println!
-// ("Type Checking Pass!!!")
+val t1p = t1dclist_oftype0(t1ds)
+val () = 
+println!
+("Type Checking Pass!!!")
 
 val t2atrans = t1dclist_atrans0(t1ds)
 val () = 
