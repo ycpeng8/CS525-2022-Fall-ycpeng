@@ -96,6 +96,10 @@ t1erm_atrans1
 extern
 fun
 t1dclist_atrans1
+(dcls: t1dclist, dcls_atrans: t2env, env0: t2env): (t2env, t2env)
+extern
+fun
+t1dclist_atrans1_in_atrans
 (dcls: t1dclist, env0: t2env): t2env
 extern
 fun
@@ -109,6 +113,16 @@ extern
 fun
 t1erm_atrans1_var
 (t1m0: t1erm, xvs: t2env): t2cmp
+extern
+fun
+t1dclist_atrans1_let
+(dcls: t1dclist, bdnl: t2bndlst, env0: t2env): (t2bndlst, t2env)
+extern
+fun
+reg_if_if(tregr: t2reg, tbnd: t2bnd): t2bnd
+extern
+fun
+reg_if_if_tbs(treg: t2reg, bndl: t2bndlst): t2bndlst
 (* ****** ****** *)
 //
 implement
@@ -123,8 +137,13 @@ t1dclist_atrans0
 let
 val
 env0 = mylist_nil()
+val
+dcls_atrans = mylist_nil()
+val
+(dcls_atrans, env0) = t1dclist_atrans1(dcls, dcls_atrans, env0)
 in//let
-t1dclist_atrans1(dcls, env0) end
+dcls_atrans 
+end
 //
 (* ****** ****** *)
 //
@@ -210,6 +229,13 @@ fprint!(out, "T2Vbtf(", btf, ")")
 |
 T2Vstr(str) =>
 fprint!(out, "T2Vstr(", str, ")")
+|
+T2Vvar(tv) =>
+fprint!(out, "T2Vvar(", tv, ")")
+//
+|
+T2Vfix(fnm) =>
+fprint!(out, "T2Vfix(", fnm, ")")
 //
 |
 T2Varg(arg) =>
@@ -243,9 +269,9 @@ fprint_t2ins(out, t2i0) =
 //
 case+ t2i0 of
 |
-T2Imov(t2r, t2x1) =>
+T2Imov(t2x1) =>
 fprint!
-(out, "T2Imov(",t2r,";",t2x1,")")
+(out, "T2Imov(",t2x1,")")
 |
 T2Ical(t2x1, t2x2) =>
 fprint!
@@ -271,6 +297,9 @@ T2Iif0(t2x1, tbs1, tbs2) =>
 fprint!
 (out, "T2Iif0(",t2x1,";",tbs1,";",tbs2,")")
 //
+| T2Ilet(dcs1) =>
+fprint!
+(out, "T2Ilet(", dcs1, ")")
 ) (*case+*) // end of [fprint_t2ins(out,t2i0)]
 //
 (* ****** ****** *)
@@ -286,7 +315,12 @@ fprint!(out, "T2CMP(", bnds, ";", t2x1, ")")
 //
 (* ****** ****** *)
 
+extern
 fun
+t2cmp_val
+(t2v0:t2box):t2cmp
+
+implement
 t2cmp_val
 (t2v0:t2box):t2cmp =
 T2CMP(mylist_nil(), t2v0)
@@ -352,11 +386,50 @@ fun find(xvs: t2env): t2cmp=
 (
 case- xvs of
 | mylist_cons(xv1, xvs) =>
-(if x = xv1.0 then xv1.1 else find(xvs))
+(if x = xv1.0 then 
+let
+val-T2CMP(bnds, t2x1) = xv1.1
+in
+case- t2x1 of
+// | T2Vlam(_) => t2cmp_val(T2Vvar(xv1.0))
+| _ => xv1.1 
+end
+else find(xvs))
 )
 }
 end
 (* ****** ****** *)
+
+(* ****** ****** *)
+implement
+reg_if_if(tregr, tbnd) =
+let
+val-T2BND(treg, tins) = tbnd
+in
+case- tins of
+| T2Iif0(t2x1, tbs1, tbs2) => 
+let
+val tbs1 = reg_if_if_tbs(tregr, tbs1)
+val tbs2 = reg_if_if_tbs(tregr, tbs2)
+in
+T2BND(tregr, T2Iif0(t2x1, tbs1, tbs2))
+end
+| _ => T2BND(tregr, tins)
+end
+
+implement
+reg_if_if_tbs(treg, bndl) =
+let
+val bndl_reverse = mylist_reverse(bndl)
+val-mylist_cons(bnd, bndl_reverse) = bndl_reverse
+val bnd = reg_if_if(treg, bnd)
+val bndl_reverse = mylist_cons(bnd, bndl_reverse)
+val bndl = mylist_reverse(bndl_reverse)
+in
+bndl
+end
+(* ****** ****** *)
+
 
 (* ****** ****** *)
 implement
@@ -419,7 +492,9 @@ val body = t1erm_atrans1(t1m1, env1)
 } (*where*) // end of [T1Mlam(targ,topt,t1m1)]
 //
 |
-T1Mvar _ =>
+// T1Mvar(tv) =>
+// t2cmp_val(T2Vvar(tv))
+T1Mvar(tv) =>
 t1erm_atrans1_var(t1m0, env0)
 //
 |
@@ -447,7 +522,8 @@ end
 //
 |
 T1Mopr _ => t1erm_atrans1_opr(t1m0, env0)
-|
+//
+| 
 T1Mif0(tm1, tm2, tmopt) =>
 let
 val
@@ -460,53 +536,116 @@ T2CMP
 t1erm_atrans1(tm2, env0)
 val
 treg = t2reg_new()
-val
-bndmov2 = 
-T2BND(treg, T2Imov(T2Vreg(treg), t2x2))
 in
 case- tmopt of
-| myoptn_nil() =>
+| myoptn_nil() => // tmopt option
 (
+case- bds2 of
+| mylist_nil() => // tm2 option
 let
-val
-bds3 = mylist_nil()
-val
-bnds = mylist_append(bds1, bds2)
-val
-bnds = bnds + bndmov2
-val
-tbnd =
-T2BND(treg, T2Iif0(t2x1, bds2+bndmov2, bds3))
+val 
+bds2lst = mylist_cons(T2BND(treg, T2Imov(t2x2)), mylist_nil())
+val 
+tbnd = T2BND(treg, T2Iif0(t2x1, bds2lst, mylist_nil()))
+val tbnd = reg_if_if(treg, tbnd)
 in
-T2CMP(bnds + tbnd, T2Vreg(treg))
+T2CMP(bds1 + tbnd, T2Vreg(treg))
+end
+| mylist_cons(bd2, bds21) => // tm2 option
+let
+// replace last register of bd2
+val bds2_reversed = mylist_reverse(bds2)
+val-mylist_cons(bdr, bds2_rest) = bds2_reversed
+val-T2BND(tregr, tinsr) = bdr
+val bdr = T2BND(treg, tinsr)   
+val bds2_reversed = mylist_cons(bdr, bds2_rest)
+val bds2lst = mylist_reverse(bds2_reversed)
+val 
+tbnd = T2BND(treg, T2Iif0(t2x1, bds2lst, mylist_nil()))
+val tbnd = reg_if_if(treg, tbnd)
+in
+T2CMP(bds1 + tbnd, T2Vreg(treg))
 end
 )
-| myoptn_cons(tm3) =>
-(
+| myoptn_cons(tm3) => // tmopt option
 let
 val
 T2CMP
 (bds3, t2x3) =
 t1erm_atrans1(tm3, env0)
-val
-bndmov3 = 
-T2BND(treg, T2Imov(T2Vreg(treg), t2x3))
-val
-bnds = mylist_append(bds1, bds2)
-val
-bnds = bnds + bndmov2
-val
-bnds = mylist_append(bnds, bds3)
-val
-bnds = bnds + bndmov3
-val
-tbnd =
-T2BND(treg, T2Iif0(t2x1, bds2+bndmov2, bds3+bndmov3))
 in
-T2CMP(bnds + tbnd, T2Vreg(treg))
-end
-)
-end // end of [T1Mif0]
+case- bds2 of
+| mylist_nil() => // tm2 option
+    let
+    val 
+    bds2lst = mylist_cons(T2BND(treg, T2Imov(t2x2)), mylist_nil())
+    in
+    case- bds3 of
+    | mylist_nil() => // tm3 option
+    let
+    val
+    bds3lst = mylist_cons(T2BND(treg, T2Imov(t2x3)), mylist_nil())
+    val
+    tbnd = T2BND(treg, T2Iif0(t2x1, bds2lst, bds3lst))
+    val tbnd = reg_if_if(treg, tbnd)
+    in
+    T2CMP(bds1 + tbnd, T2Vreg(treg))
+    end
+    | mylist_cons(bd3, bds31) => // tm3 option
+    let
+    // replace last register of bd3
+    val bds3_reversed = mylist_reverse(bds3)
+    val-mylist_cons(bdr, bds3_rest) = bds3_reversed
+    val-T2BND(tregr, tinsr) = bdr
+    val bdr = T2BND(treg, tinsr)   
+    val bds3_reversed = mylist_cons(bdr, bds3_rest)
+    val bds3lst = mylist_reverse(bds3_reversed)
+    val
+    tbnd = T2BND(treg, T2Iif0(t2x1, bds2lst, bds3lst))
+    val tbnd = reg_if_if(treg, tbnd)
+    in
+    T2CMP(bds1 + tbnd, T2Vreg(treg))
+    end
+    end
+| mylist_cons(bd2, bds21) => // tm2 option
+    let
+    // replace last register of bd2
+    val bds2_reversed = mylist_reverse(bds2)
+    val-mylist_cons(bdr, bds2_rest) = bds2_reversed
+    val-T2BND(tregr, tinsr) = bdr
+    val bdr = T2BND(treg, tinsr)   
+    val bds2_reversed = mylist_cons(bdr, bds2_rest)
+    val bds2lst = mylist_reverse(bds2_reversed)
+    in
+    case- bds3 of
+    | mylist_nil() => // tm3 option
+    let
+    val
+    bds3lst = mylist_cons(T2BND(treg, T2Imov(t2x3)), mylist_nil())
+    val
+    tbnd = T2BND(treg, T2Iif0(t2x1, bds2lst, bds3lst))
+    val tbnd = reg_if_if(treg, tbnd)
+    in
+    T2CMP(bds1 + tbnd, T2Vreg(treg))
+    end
+    | mylist_cons(bd3, bds31) => // tm3 option
+    let
+    // replace last register of bd3
+    val bds3_reversed = mylist_reverse(bds3)
+    val-mylist_cons(bdr, bds3_rest) = bds3_reversed
+    val-T2BND(tregr, tinsr) = bdr
+    val bdr = T2BND(treg, tinsr)   
+    val bds3_reversed = mylist_cons(bdr, bds3_rest)
+    val bds3lst = mylist_reverse(bds3_reversed)
+    val
+    tbnd = T2BND(treg, T2Iif0(t2x1, bds2lst, bds3lst))
+    val tbnd = reg_if_if(treg, tbnd)
+    in
+    T2CMP(bds1 + tbnd, T2Vreg(treg))
+    end
+    end
+end // end of myoptn_cons(tm3)
+end // end of T1Mif0(tm1, tm2, tmopt)
 //
 |
 T1Mfst(tm) =>
@@ -563,25 +702,40 @@ end
 |
 T1Mfix
 (fnm, xnm, tpo_arg, tm1, tpo_res) => 
-(t2cmp_val(T2Vlam(bodyf))) where
+(
+t2cmp_val
+(T2Vlam(body))) where
 {
-val t2c0x = t2cmp_val(T2Varg(0))
-val envx = 
-mylist_cons(@(xnm, t2c0x), env0)
-val t2c0f = t2cmp_val(T2Varg(1))
-val envf = 
-mylist_cons(@(fnm, t2c0f), envx)
-// val bodyx = t1erm_atrans1(tm1, envx)
-val bodyf = t1erm_atrans1(tm1, envf)
-}
+//
+val t2c0 = t2cmp_val(T2Varg(0))
+val t2cf = t2cmp_val(T2Vfix(fnm))
+//
+val env1 =
+mylist_cons(@(fnm, t2cf), mylist_cons(@(xnm, t2c0), env0))
+val body = t1erm_atrans1(tm1, env1)
+//
+} (*where*) // end of [T1Mfix(targ,topt,t1m1)]
 //
 |
 T1Mlet(dcls, tm1) =>
 let
 val
-env1 = t1dclist_atrans1(dcls, env0)
+dcls_atrans = mylist_nil()
+val
+(dcls1, env1) = t1dclist_atrans1(dcls, dcls_atrans, env0) // local vars 
+val
+treg = t2reg_new()
+val
+tbnd =
+T2BND(treg, T2Ilet(dcls1))
+// val
+// env1 = t1dclist_atrans1(dcls, env0)
+// val-T2CMP(bndl1, t2x1) = t1erm_atrans1(tm1, env1)
+val-T2CMP(bndl1, t2x1) = t1erm_atrans1(tm1, env1)
+val
+bndl = mylist_cons(tbnd, bndl1)
 in
-t1erm_atrans1(tm1, env1)
+T2CMP(bndl, t2x1)
 end
 //
 |
@@ -589,15 +743,47 @@ T1Manno(tm1, tp1) => t1erm_atrans1(tm1, env0)
 |
 T1Mnone(d1e) => t2cmp_val(T2Vnil())
 ) (*case+*) // end of [t1erm_atrans1(t1m0,env0)]
-  
 (* ****** ****** *)
 
+
 (* ****** ****** *)
+// implement
+// t1dclist_atrans1_in_atrans
+// (dcls, env0) =
+// case- dcls of
+// | mylist_nil() => mylist_reverse(env0)
+// | mylist_cons(dcl1, dcls1) =>
+// let
+// // t1v: t1var
+// val-
+// T1DCLbind(t1v, tm1) = dcl1
+// val
+// tc1 = t1erm_atrans1(tm1, env0)
+// val-T2CMP(bds1, t2x1) = tc1
+// in
+// case- t2x1 of
+// | T2Vlam(_) =>
+// let
+// val
+// env1 = mylist_cons(@(t1v, t2cmp_val(T2Vfix(t1v))), env0)
+// in
+// t1dclist_atrans1(dcls1, env1)
+// end
+// | _ =>
+// let
+// val
+// env1 = mylist_cons(@(t1v, tc1), env0)
+// in
+// t1dclist_atrans1(dcls1, env1)
+// end
+// end
+
+
 implement
 t1dclist_atrans1
-(dcls, env0) =
+(dcls, dcls_atrans, env0) =
 case- dcls of
-| mylist_nil() => mylist_reverse(env0)
+| mylist_nil() => (mylist_reverse(dcls_atrans), env0)
 | mylist_cons(dcl1, dcls1) =>
 (
 let
@@ -607,9 +793,16 @@ T1DCLbind(t1v, tm1) = dcl1
 val
 tc1 = t1erm_atrans1(tm1, env0)
 val
-env1 = mylist_cons(@(t1v, tc1), env0)
+dcls_atrans = mylist_cons(@(t1v, tc1), dcls_atrans)
+val-T2CMP(bds1, t2x1) = tc1
+val
+env1 = mylist_cons(@(t1v, t2cmp_val(T2Vvar(t1v))), env0)
+val
+env2 = mylist_cons(@(t1v, t2cmp_val(T2Vfix(t1v))), env0)
 in
-t1dclist_atrans1(dcls1, env1)
+case- t2x1 of
+| T2Vlam(_) => t1dclist_atrans1(dcls1, dcls_atrans, env2)
+| _ => t1dclist_atrans1(dcls1, dcls_atrans, env1)
 end
 )
 (* ****** ****** *)

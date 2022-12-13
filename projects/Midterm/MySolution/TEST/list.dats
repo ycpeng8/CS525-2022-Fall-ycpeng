@@ -23,18 +23,18 @@ end
 (* ****** ****** *)
 //
 val xs = list_nil()
-val xs = list_cons(3, xs)
-val xs = list_cons(2, xs)
-val xs = list_cons(1, xs)
+val xs1 = list_cons(3, xs)
+val xs2 = list_cons(2, xs1)
+val xs3 = list_cons(1, xs2)
 val _1_ =
-(print("xs = "); print(xs); print("\n"))
+(print("xs = "); print(xs3); print("\n"))
 val _2_ =
-(print("|xs| = "); print(length(xs)); print("\n"))
+(print("|xs| = "); print(length(xs3)); print("\n"))
 //
-val ys = square(xs)
+val ys = square(xs3)
 val _3_ =
 (print("ys = "); print(ys); print("\n"))
-val _2_ =
+val _4_ =
 (print("|ys| = "); print(length(ys)); print("\n"))
 //
 (* ****** ****** *)

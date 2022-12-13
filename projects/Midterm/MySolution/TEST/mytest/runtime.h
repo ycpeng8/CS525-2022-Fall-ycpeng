@@ -25,6 +25,7 @@ mymalloc(size_t n) {
 #define TAGstr 2
 #define TAGcfp 3 // closure-function-pointer
 #define TAGtup 4
+#define TAGlst 5
 
 /* ****** ****** */
 
@@ -73,6 +74,18 @@ typedef lamval0_tup *lamval1_tup;
 
 /* ****** ****** */
 typedef
+struct{
+  int tag; 
+  lamval1 ele;
+  lamval1 lst;
+} lamval0_lst;
+
+typedef lamval0_lst *lamval1_lst;
+/* ****** ****** */
+
+/* ****** ****** */
+/*
+typedef
 struct node
 {
   lamval1 val;
@@ -80,6 +93,7 @@ struct node
 } lamval0_list;
 
 typedef lamval0_list *lamval1_list;
+*/
 /* ****** ****** */
 
 /* ****** ****** */
@@ -103,6 +117,11 @@ LAMVAL_fst(lamval1 tup0);
 extern
 lamval1
 LAMVAL_snd(lamval1 tup0);
+/* ****** ****** */
+
+extern 
+lamval1
+print_list(lamval1 x);
 /* ****** ****** */
 
 extern
@@ -231,7 +250,7 @@ LAMVAL_str(char *data)
 {
   lamval1_str p0;
   p0 = mymalloc(sizeof(lamval0_str));
-  p0->tag = TAGstr; p0->data = *data; return (lamval1)p0;
+  p0->tag = TAGstr; p0->data = data; return (lamval1)p0;
 }
 
 extern
@@ -242,6 +261,18 @@ LAMVAL_tup(lamval1 x, lamval1 y)
   p0 = mymalloc(sizeof(lamval0_tup));
   p0->tag = TAGtup;
   p0->fst = x; p0->snd = y;
+  return (lamval1)p0;
+}
+
+extern
+lamval1
+LAMVAL_lst(lamval1 x, lamval1 y)
+{
+  lamval1_lst p0;
+  p0 = mymalloc(sizeof(lamval0_lst));
+  p0->tag = TAGlst;
+  p0->ele = x;
+  p0->lst = y;
   return (lamval1)p0;
 }
 
@@ -325,7 +356,7 @@ LAMOPR_mod(lamval1 x, lamval1 y)
 }
 
 extern 
-void
+lamval1
 LAMOPR_show(lamval1 x)
 {
   int tag;
@@ -336,26 +367,11 @@ LAMOPR_show(lamval1 x)
       printf("%s", ((lamval1_str)x)->data); break;
     default: printf("Unrecognized tag = %i", tag);
   }
-}
-
-extern
-void
-LAMOPR_print(lamval1 x)
-{
-  int tag;
-  tag = x->tag;
-  switch( tag )
-  {
-    case TAGint:
-      printf("%i", ((lamval1_int)x)->data); break;
-    case TAGstr:
-      printf("%s", ((lamval1_str)x)->data); break;
-    default: printf("Unrecognized tag = %i", tag);
-  }
+  return LAMVAL_int(0);
 }
 
 extern 
-void
+lamval1
 LAMOPR_showval(lamval1 x)
 {
   int tag;
@@ -363,25 +379,26 @@ LAMOPR_showval(lamval1 x)
   switch( tag )
   {
     case TAGint:
-      printf("%s", ((lamval1_int)x)->data); break;
+      printf("%i", ((lamval1_int)x)->data); break;
     default: printf("Unrecognized tag = %i", tag);
   }
+  return LAMVAL_int(0);
 }
 
-extern 
-lamval1*
-LAMOPR_list_nil()
-{
-  lamval1_list *nil = NULL;
-  nil = (lamval0_list *)mymalloc(sizeof(lamval0_list));
-  nil->val = NULL; nil->next = NULL;
-  return (lamval1*)nil;
-}
+// extern 
+// lamval1*
+// LAMOPR_list_nil()
+// {
+//   lamval1_list *nil = NULL;
+//   nil = (lamval0_list *)mymalloc(sizeof(lamval0_list));
+//   nil->val = NULL; nil->next = NULL;
+//   return (lamval1*)nil;
+// }
 /* ****** ****** */
 
 extern
-void
-LAMVAL_print(lamval1 x)
+lamval1
+LAMOPR_print(lamval1 x)
 {
   int tag;
   tag = x->tag;
@@ -393,8 +410,73 @@ LAMVAL_print(lamval1 x)
       printf("%i", ((lamval1_int)x)->data); break;
     case TAGstr:
       printf("%s", ((lamval1_str)x)->data); break;
+    case TAGlst:
+      printf("[");
+      print_list(x); 
+      printf("]");
+      break;
     default: printf("Unrecognized tag = %i", tag);
   }
+  return LAMVAL_int(0);
 }
 
+extern 
+lamval1
+print_list(lamval1 x)
+{
+  lamval1 ele = ((lamval1_lst)x)->ele;
+  lamval1 lst = ((lamval1_lst)x)->lst;
+
+  if (ele != NULL) {
+    LAMOPR_print(ele);
+    if (((lamval1_lst)lst)->ele != NULL)
+    {
+      printf(", ");
+      print_list(lst);
+    }
+  }
+  return LAMVAL_int(0);
+}
+
+extern
+lamval1
+LAMOPR_lst_nil()
+{
+  return LAMVAL_lst(NULL, NULL);
+}
+
+extern
+lamval1
+LAMOPR_lst_cons(lamval1 x, lamval1 y)
+{
+  return LAMVAL_lst(x, y);
+}
+
+extern
+lamval1
+LAMOPR_lst_nilq(lamval1 x)
+{
+  return LAMVAL_int(((lamval1_lst)x)->lst == NULL);
+}
+
+extern
+lamval1
+LAMOPR_lst_consq(lamval1 x)
+{
+  return LAMVAL_int(((lamval1_lst)x)->lst != NULL);
+}
+
+extern
+lamval1
+LAMOPR_lst_uncons1(lamval1 x)
+{
+  return ((lamval1_lst)x)->ele;
+}
+
+extern
+lamval1
+LAMOPR_lst_uncons2(lamval1 x)
+{
+  return ((lamval1_lst)x)->lst;
+}
 /* ****** ****** */

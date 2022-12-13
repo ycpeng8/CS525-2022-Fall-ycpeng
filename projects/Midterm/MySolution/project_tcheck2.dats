@@ -304,8 +304,10 @@ val-
 mylist_cons(tp1, tps) = tps
 val-
 mylist_cons(tp2, tps) = tps
-val-
-T1Plist(tp3) = tp2
+// val () = print(tp1)
+// val () = print(tp2)
+val tp3 = t1ype_new_ext()
+val-true = t1ype_unify(tp2, T1Plist(tp3))
 val-true = t1ype_unify(tp1, tp3)
 in
 T1Plist(tp1)
@@ -586,16 +588,20 @@ end // let // end of [T1Mif0(tm1, tm2, tmopt)]
 | T1Mfst(tm) =>
 let
 val tp = t1erm_oftype1(tm, xts)
-val- T1Ptup(tp1, tp2) = tp
+val-true = t1ype_unify(tp, t1ype_new_tup())
 in
-tp1
+case- tp of
+| T1Ptup(tp1, tp2) => tp1
+| T1Pext(_) => t1ype_new_ext()
 end
 | T1Msnd(tm) =>
 let
 val tp = t1erm_oftype1(tm, xts)
-val- T1Ptup(tp1, tp2) = tp
+val-true = t1ype_unify(tp, t1ype_new_tup())
 in
-tp2
+case- tp of
+| T1Ptup(tp1, tp2) => tp2
+| T1Pext(_) => t1ype_new_ext()
 end
 | T1Mtup(tm1, tm2) =>
 let
@@ -723,17 +729,20 @@ end
 implement
 t1dclist_oftype1
 (dcls: t1dclist, xts: t1ctx) =
+(
+case- dcls of
+| mylist_nil() => xts
+| mylist_cons(dcl1, dcls1) =>
 let
-val-
-mylist_cons(dcl1, dcls1) = dcls
 // t1v: t1var
 val-
 T1DCLbind(t1v, tm1) = dcl1
 val
 tp1 = t1erm_oftype1(tm1, xts)
 in
-mylist_cons(@(t1v, tp1), xts)
+t1dclist_oftype1(dcls1, mylist_cons(@(t1v, tp1), xts))
 end
+)
 (* ****** ****** *)
 
 (* end of [CS525-2022-Fall/Midterm_project_tcheck2.dats] *)

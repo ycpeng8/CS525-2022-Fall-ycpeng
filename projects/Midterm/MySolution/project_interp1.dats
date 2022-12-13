@@ -232,6 +232,7 @@ in
   | T1Vstr(string) => let val () = print(string) in T1Vnil() end
   | T1Vcons(tag, tvlst) => 
     let
+    val () = 
     if tag = 0
     then 
     {
@@ -298,7 +299,9 @@ T1Vcons(_, lst) = tv1
 val-
 tv1_tail = mylist_tail(lst)
 in
-T1Vcons(1, tv1_tail)
+case- tv1_tail of
+| mylist_nil() => T1Vcons(0, tv1_tail)
+| mylist_cons(_, _) => T1Vcons(1, tv1_tail)
 end
 )
 end (*let*) // end of [t1erm_interp_opr(tm0, xvs)]

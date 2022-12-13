@@ -273,6 +273,9 @@ t2box =
 | T2Vint of int
 | T2Vbtf of bool
 | T2Vstr of string
+| T2Vvar of t2var
+//
+| T2Vfix of string
 //
 | T2Varg of (t2arg)
 | T2Vreg of (t2reg)
@@ -282,8 +285,7 @@ t2box =
 and t2ins =
 //
 | 
-T2Imov of
-(t2box, t2box)
+T2Imov of (t2box) // if0 call
 //
 |
 T2Ical of
@@ -302,6 +304,8 @@ T2Itup of (t2box, t2box) // pair formation
 //
 |
 T2Iif0 of (t2box, t2bndlst, t2bndlst)
+|
+T2Ilet of (t2env)
 //
 and
 t2bnd =
@@ -310,8 +314,11 @@ T2BND of (t2reg, t2ins)
 where
 t2arg = int and
 t2reg = int and
+t2var = string and
 t2boxlst = mylist(t2box) and
-t2bndlst = mylist(t2bnd) and t2inslst = mylist(t2ins)
+t2bndlst = mylist(t2bnd) and 
+t2inslst = mylist(t2ins) and
+t2env = mylist(@(t1var, t2cmp))
 //
 (* ****** ****** *)
 
@@ -319,9 +326,9 @@ typedef t2cmplst = mylist(t2cmp)
 
 (* ****** ****** *)
 //
-typedef
-t2env =
-mylist(@(t1var, t2cmp))
+// typedef
+// t2env =
+// mylist(@(t1var, t2cmp))
 //
 (* ****** ****** *)
 
