@@ -369,15 +369,17 @@ let
 val-
 mylist_cons(tv1, tvs) = tvs
 val-
-T1Vlazy(tv1) = tv1
+T1Vlazy(tm1, env0) = tv1
+val-
+x = t1erm_interp1(tm1, env0)
 val () = 
 (
-  case- tv1 of
+  case- x of
   | T1Vstrm(_, _) => print("strm")
-  | T1Vlazy(_) => print("lazy")
+  | T1Vlazy(_, _) => print("lazy")
 )
 in
-tv1
+x
 end
 )
 end (*let*) // end of [t1erm_interp_opr(tm0, xvs)]
@@ -523,7 +525,7 @@ end
 //
 | 
 T1Mlazy(tm1) =>
-T1Vlazy(t1erm_interp1(tm1, env0))
+T1Vlazy(tm1, env0)
 //
 | 
 T1Manno(tm1, tp1) => t1erm_interp1(tm1, env0)

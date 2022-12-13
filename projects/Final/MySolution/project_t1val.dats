@@ -70,7 +70,7 @@ T1Vfix(t1m0, env) =>
 fprint!(out, "T1Vfix(", t1m0, ";", "...", ")")
 //
 |
-T1Vlazy(t1v) =>
+T1Vlazy(t1v, env) =>
 fprint!(out, "T1Vlazy(", t1v, ")")
 |
 T1Vcons(tag, t1vs) =>
