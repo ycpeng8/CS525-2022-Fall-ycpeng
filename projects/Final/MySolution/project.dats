@@ -33,8 +33,8 @@ UN = "prelude/SATS/unsafe.sats"
 #staload "./project_t1ype.dats"
 #staload "./project_t1erm.dats"
 #staload "./project_interp1.dats"
-// #staload "./project_tcheck2.dats"
-// #staload "./project_atrans3.dats"
+#staload "./project_tcheck2.dats"
+#staload "./project_atrans3.dats"
 // #staload "./project_emitter.dats"
 
 (* ****** ****** *)
@@ -44,8 +44,8 @@ UN = "prelude/SATS/unsafe.sats"
 #dynload "./project_t1erm.dats"
 #dynload "./project_t1val.dats"
 #dynload "./project_interp1.dats"
-// #dynload "./project_tcheck2.dats"
-// #dynload "./project_atrans3.dats"
+#dynload "./project_tcheck2.dats"
+#dynload "./project_atrans3.dats"
 // #dynload "./project_emitter.dats"
 
 (* ****** ****** *)
@@ -134,15 +134,15 @@ println!
 val
 t1cs = t1dclist_interp0(t1ds)
 
-// val t1p = t1dclist_oftype0(t1ds)
-// val () = 
-// println!
-// ("Type Checking Pass!!!")
+val t1p = t1dclist_oftype0(t1ds)
+val () = 
+println!
+("Type Checking Pass!!!")
 
-// val t2atrans = t1dclist_atrans0(t1ds)
-// val () = 
-// println!
-// ("atrans: t2atrans = ", t2atrans)
+val t2atrans = t1dclist_atrans0(t1ds)
+val () = 
+println!
+("atrans: t2atrans = ", t2atrans)
 
 // val () =
 // println!

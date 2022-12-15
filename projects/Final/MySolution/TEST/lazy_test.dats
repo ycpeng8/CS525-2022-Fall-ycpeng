@@ -1,8 +1,10 @@
 fun
-generate(pair: (int, int) , sum: int): lazy(strm(int, int)) =
+generate(arg: ((int, int), int)): lazy(strm(int, int)) =
 $lazy
 (
 let
+    val pair = fst(arg)
+    val sum = snd(arg)
     val p1 = fst(pair)
     val p2 = snd(pair)
 in
@@ -16,8 +18,15 @@ end
 val theNat2s = generate((0, 0), 0)
 val ns = $eval(theNat2s)
 val p = strm_uncons1(ns)
-val theNat2s = strm_uncons2(ns)
+val theNat2s1 = strm_uncons2(ns)
 val p0 = fst(p)
 val p1 = snd(p)
 val _1_ = 
 (print("p = ("); print(p0); print(", "); print(p1); print(")"); print("\n"))
+val ns2 = $eval(theNat2s1)
+val p1 = strm_uncons1(ns2)
+val theNat2s2 = strm_uncons2(ns2)
+val p3 = fst(p1)
+val p4 = snd(p1)
+val _2_ =
+(print("p1 = ("); print(p3); print(", "); print(p4); print(")"); print("\n"))

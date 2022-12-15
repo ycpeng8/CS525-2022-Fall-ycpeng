@@ -39,6 +39,8 @@ project_t1ype.dats \
 project_t1erm.dats \
 project_t1val.dats \
 project_interp1.dats \
+project_tcheck2.dats \
+project_atrans3.dats \
 
 ######
 

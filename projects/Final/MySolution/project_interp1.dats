@@ -111,13 +111,6 @@ val-
 mylist_cons(tv1, tvs) = tvs
 val-
 mylist_cons(tv2, tvs) = tvs
-val () = println!("*****")
-val () = 
-(
-  case- tv1 of
-  | T1Vint(integer) => print(integer)
-  | T1Vnil => print("nil")
-)
 val-
 T1Vint(i1) = tv1 and T1Vint(i2) = tv2 in T1Vint(i1+i2)
 end
@@ -318,8 +311,10 @@ val-
 mylist_cons(tv1, tvs) = tvs
 val-
 mylist_cons(tv2, tvs) = tvs
-val-
-T1Vcons(_, lst) = tv2
+val 
+lst = mylist_sing(tv2)
+// val-
+// T1Vcons(_, lst) = tv2
 // val-
 // T1Vlazy(strm) = tv2
 // val-
@@ -366,8 +361,10 @@ val-
 tv1_tail = mylist_tail(lst)
 in
 case- tv1_tail of
+// | mylist_nil() => T1Vcons(0, tv1_tail)
+// | mylist_cons(_, _) => T1Vcons(1, tv1_tail)
 | mylist_nil() => T1Vcons(0, tv1_tail)
-| mylist_cons(_, _) => T1Vcons(1, tv1_tail)
+| mylist_cons(x, _) => x
 end
 | "$eval" =>
 // let
@@ -569,170 +566,6 @@ in
 t1dclist_interp1(dcls1, env1)
 end
 )
-(* ****** ****** *)
-
-(* ****** ****** *)
-extern
-fun
-T1Madd // addition
-(a1: t1erm, a2: t1erm): t1erm
-extern
-fun
-T1Msub // subtraction
-(a1: t1erm, a2: t1erm): t1erm
-extern
-fun
-T1Mmul // multiplication
-(a1: t1erm, a2: t1erm): t1erm 
-extern
-fun
-T1Mdiv // div
-(a1: t1erm, a2: t1erm): t1erm 
-extern
-fun
-T1Mmod // mod
-(a1: t1erm, a2: t1erm): t1erm 
-extern
-fun
-T1Mlt // less
-(a1: t1erm, a2: t1erm): t1erm 
-extern
-fun
-T1Mgt // greater
-(a1: t1erm, a2: t1erm): t1erm 
-extern
-fun
-T1Mlte // less-equal
-(a1: t1erm, a2: t1erm): t1erm 
-extern
-fun
-T1Mgte // greater-equal
-(a1: t1erm, a2: t1erm): t1erm 
-extern
-fun
-T1Meq // equal
-(a1: t1erm, a2: t1erm): t1erm 
-extern
-fun
-T1Mneq // not-equal
-(a1: t1erm, a2: t1erm): t1erm 
-extern
-fun
-T1Mshow
-(a: t1erm): t1erm 
-extern
-fun
-T1Mshowval
-(a: t1erm): t1erm 
-extern
-fun
-T1Mprint
-(a: t1erm): t1erm 
-extern
-fun
-T1Mlist_nil(): t1erm 
-extern
-fun
-T1Mlist_cons
-(a1: t1erm, a2: t1erm): t1erm 
-extern
-fun
-T1Mlist_nilq
-(a: t1erm): t1erm 
-extern
-fun
-T1Mlist_consq
-(a: t1erm): t1erm 
-extern
-fun
-T1Mlist_uncons1
-(a: t1erm): t1erm 
-extern
-fun
-T1Mlist_uncons2
-(a: t1erm): t1erm 
-(* ****** ****** *)
-
-(* ****** ****** *)
-implement
-T1Madd // addition
-(a1: t1erm, a2: t1erm): t1erm =
-T1Mopr("+", mylist_pair(a1, a2))
-implement
-T1Msub // subtraction
-(a1: t1erm, a2: t1erm): t1erm =
-T1Mopr("-", mylist_pair(a1, a2))
-implement
-T1Mmul // multiplication
-(a1: t1erm, a2: t1erm): t1erm =
-T1Mopr("*", mylist_pair(a1, a2))
-implement
-T1Mdiv // div
-(a1: t1erm, a2: t1erm): t1erm =
-T1Mopr("/", mylist_pair(a1, a2))
-implement
-T1Mmod // mod
-(a1: t1erm, a2: t1erm): t1erm =
-T1Mopr("%", mylist_pair(a1, a2))
-implement
-T1Mlt // less
-(a1: t1erm, a2: t1erm): t1erm =
-T1Mopr("<", mylist_pair(a1, a2))
-implement
-T1Mgt // greater
-(a1: t1erm, a2: t1erm): t1erm =
-T1Mopr(">", mylist_pair(a1, a2))
-implement
-T1Mlte // less-equal
-(a1: t1erm, a2: t1erm): t1erm =
-T1Mopr("<=", mylist_pair(a1, a2))
-implement
-T1Mgte // greater-equal
-(a1: t1erm, a2: t1erm): t1erm =
-T1Mopr(">=", mylist_pair(a1, a2))
-implement
-T1Meq // equal
-(a1: t1erm, a2: t1erm): t1erm =
-T1Mopr("=", mylist_pair(a1, a2))
-implement
-T1Mneq // not-equal
-(a1: t1erm, a2: t1erm): t1erm =
-T1Mopr("!=", mylist_pair(a1, a2))
-implement
-T1Mshow
-(a: t1erm): t1erm =
-T1Mopr("show", mylist_sing(a))
-implement
-T1Mshowval
-(a: t1erm): t1erm =
-T1Mopr("showval", mylist_sing(a))
-implement
-T1Mprint
-(a: t1erm): t1erm =
-T1Mopr("print", mylist_sing(a))
-implement
-T1Mlist_nil(): t1erm = 
-T1Mopr("list_nil", mylist_nil())
-implement
-T1Mlist_cons
-(a1: t1erm, a2: t1erm): t1erm =
-T1Mopr("list_cons", mylist_pair(a1, a2))
-implement
-T1Mlist_nilq
-(a: t1erm): t1erm =
-T1Mopr("list_nilq", mylist_sing(a))
-implement
-T1Mlist_consq
-(a: t1erm): t1erm =
-T1Mopr("list_consq", mylist_sing(a))
-implement
-T1Mlist_uncons1
-(a: t1erm): t1erm =
-T1Mopr("list_uncons1", mylist_sing(a))
-implement
-T1Mlist_uncons2
-(a: t1erm): t1erm =
-T1Mopr("list_uncons2", mylist_sing(a))
 (* ****** ****** *)
 
 (* end of [CS525-2022-Fall/Midterm_project_interp1.dats] *)

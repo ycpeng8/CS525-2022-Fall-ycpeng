@@ -348,6 +348,70 @@ T1Plist(tp2) = tp1
 in
 tp1
 end
+| "strm_nil" => // () -> strm(X) // strm-nil
+let
+val
+tp1 = t1ype_new_ext()
+in
+T1Pstrm(tp1)
+end
+| "strm_cons" => // (X, lazy(strm(X))) -> strm(X) // strm-cons
+let
+val-
+mylist_cons(tp1, tps) = tps
+val-
+mylist_cons(tp2, tps) = tps
+val tp3 = t1ype_new_ext()
+val-true = t1ype_unify(tp2, T1Plazy(T1Pstrm(tp3)))
+val-true = t1ype_unify(tp1, tp3)
+in
+T1Pstrm(tp1)
+end
+| "strm_nilq" => // strm(X) -> bool // strm-nil-test
+let
+val-
+mylist_cons(tp1, tps) = tps
+val tp2 = t1ype_new_ext()
+val-true = t1ype_unify(tp1, T1Pstrm(tp2))
+in
+T1Pbool
+end
+| "strm_consq" => // strm(X) -> bool // strm-cons-test
+let
+val-
+mylist_cons(tp1, tps) = tps
+val tp2 = t1ype_new_ext()
+val-true = t1ype_unify(tp1, T1Pstrm(tp2))
+in
+T1Pbool
+end
+| "strm_uncons1" => // strm(X) -> X // strm-head
+let
+val-
+mylist_cons(tp1, tps) = tps
+val tp2 = t1ype_new_ext()
+val-true = t1ype_unify(tp1, T1Pstrm(tp2))
+in
+tp2
+end
+| "strm_uncons2" => // strm(X) -> lazy(strm(X)) // strm-tail
+let
+val-
+mylist_cons(tp1, tps) = tps
+val tp2 = t1ype_new_ext()
+val-true = t1ype_unify(tp1, T1Pstrm(tp2))
+in
+T1Plazy(T1Pstrm(tp2))
+end
+| "$eval" => // lazy(X) -> X // eval
+let
+val-
+mylist_cons(tp1, tps) = tps
+val tp2 = t1ype_new_ext()
+val-true = t1ype_unify(tp1, T1Plazy(T1Pstrm(tp2)))
+in
+T1Pstrm(tp2)
+end
 )
 end (*let*) // end of [t1erm_oftype1_opr(tm0, xts)]
 (* ****** ****** *)
@@ -422,6 +486,12 @@ T1Ptup(tp21, tp22) =>
 T1Plist(tp21) =>
 tpVar_occurs_t1ype(X1, tp21)
 |
+T1Plazy(tp21) =>
+tpVar_occurs_t1ype(X1, tp21)
+|
+T1Pstrm(tp21) =>
+tpVar_occurs_t1ype(X1, tp21)
+|
 T1Pnone _ => false
 end // end of [let] // end of [tpVar_occurs_t1ype]
 //
@@ -448,6 +518,10 @@ case
 (t1ype_unify(tp11, tp21) && t1ype_unify(tp12, tp22))
 |
 (T1Plist(tp11), T1Plist(tp21)) => t1ype_unify(tp11, tp21)
+|
+(T1Plazy(tp11), T1Plazy(tp21)) => t1ype_unify(tp11, tp21)
+|
+(T1Pstrm(tp11), T1Pstrm(tp21)) => t1ype_unify(tp11, tp21)
 | (_, _) => false 
 end // end of [let] // end of [t1ype_unify(tp1, tp2)]
 //
@@ -648,7 +722,7 @@ t1erm_oftype1
 (tm1, mylist_cons(@(fnm, tp1), mylist_cons(@(xnm, tp11), xts)))
 val-true = t1ype_unify(tp12, tp2)
 in
-tp1
+T1Pfun(tp11, tp12)
 end
 )
 | myoptn_cons(tp_res) =>
@@ -711,6 +785,10 @@ xts1 = t1dclist_oftype1(dcls, xts)
 in 
 t1erm_oftype1(tm1, xts1)
 end
+//
+| 
+T1Mlazy(tm1) =>
+T1Plazy(t1erm_oftype1(tm1, xts))
 //
 | T1Manno(tm1, tp1) =>
 let
