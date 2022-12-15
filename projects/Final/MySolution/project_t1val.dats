@@ -69,9 +69,12 @@ fprint!(out, "T1Vlam(", t1m0, ";", "...", ")")
 T1Vfix(t1m0, env) =>
 fprint!(out, "T1Vfix(", t1m0, ";", "...", ")")
 //
+// |
+// T1Vlazy(t1v) =>
+// fprint!(out, "T1Vlazy(", t1v, ")")
 |
-T1Vlazy(t1v) =>
-fprint!(out, "T1Vlazy(", t1v, ")")
+T1Vlazy(t1m0, env) =>
+fprint!(out, "T1Vlazy(", t1m0, ")")
 |
 T1Vcons(tag, t1vs) =>
 fprint!(out, "T1Vcons(", tag, ";", t1vs, ")")

@@ -370,30 +370,30 @@ case- tv1_tail of
 | mylist_cons(_, _) => T1Vcons(1, tv1_tail)
 end
 | "$eval" =>
-let
-val-
-mylist_cons(tv1, tvs) = tvs
-val-
-T1Vlazy(strm) = tv1
-in
-strm
-end
 // let
 // val-
 // mylist_cons(tv1, tvs) = tvs
 // val-
-// T1Vlazy(tm1, env0) = tv1
-// val-
-// x = t1erm_interp1(tm1, env0)
-// // val () = 
-// // (
-// //   case- x of
-// //   | T1Vstrm(_, _) => print("strm")
-// //   | T1Vlazy(_, _) => print("lazy")
-// // )
+// T1Vlazy(strm) = tv1
 // in
-// x
+// strm
 // end
+let
+val-
+mylist_cons(tv1, tvs) = tvs
+val-
+T1Vlazy(tm1, env0) = tv1
+val-
+x = t1erm_interp1(tm1, env0)
+// val () = 
+// (
+//   case- x of
+//   | T1Vstrm(_, _) => print("strm")
+//   | T1Vlazy(_, _) => print("lazy")
+// )
+in
+x
+end
 )
 end (*let*) // end of [t1erm_interp_opr(tm0, xvs)]
 
@@ -536,9 +536,12 @@ in
 t1erm_interp1(tm1, env1)
 end
 //
+// | 
+// T1Mlazy(tm1) =>
+// T1Vlazy(t1erm_interp1(tm1, env0))
 | 
 T1Mlazy(tm1) =>
-T1Vlazy(t1erm_interp1(tm1, env0))
+T1Vlazy(tm1, env0)
 //
 | 
 T1Manno(tm1, tp1) => t1erm_interp1(tm1, env0)
