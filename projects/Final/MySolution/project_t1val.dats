@@ -54,10 +54,10 @@ fprint!(out, "T1Vbtf(", btf, ")")
 |
 T1Vstr(str) =>
 fprint!(out, "T1Vstr(", str, ")")
-|
-T1Vstrm(t1v1, t1v2) =>
-fprint!
-(out, "T1Vstrm(", t1v1, ";", t1v2, ")")
+// |
+// T1Vstrm(t1v1, t1v2) =>
+// fprint!
+// (out, "T1Vstrm(", t1v1, ";", t1v2, ")")
 |
 T1Vtup(t1v1, t1v2) =>
 fprint!
@@ -70,7 +70,7 @@ T1Vfix(t1m0, env) =>
 fprint!(out, "T1Vfix(", t1m0, ";", "...", ")")
 //
 |
-T1Vlazy(t1v, env) =>
+T1Vlazy(t1v) =>
 fprint!(out, "T1Vlazy(", t1v, ")")
 |
 T1Vcons(tag, t1vs) =>

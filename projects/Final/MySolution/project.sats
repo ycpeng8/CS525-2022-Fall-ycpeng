@@ -199,6 +199,7 @@ datatype t1val =
 //
 // for thunkfication
 // | T1Vlazy of (t1erm, t1env)
+| T1Vlazy of (t1val)
 //
 | // for constructors
 T1Vcons of (int(*tag*), t1valist)

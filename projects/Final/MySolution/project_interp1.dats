@@ -320,6 +320,10 @@ val-
 mylist_cons(tv2, tvs) = tvs
 val-
 T1Vcons(_, lst) = tv2
+// val-
+// T1Vlazy(strm) = tv2
+// val-
+// T1Vcons(_, lst) = strm
 in
 T1Vcons(1, mylist_cons(tv1, lst))
 end
@@ -369,8 +373,10 @@ end
 let
 val-
 mylist_cons(tv1, tvs) = tvs
+val-
+T1Vlazy(strm) = tv1
 in
-tv1
+strm
 end
 // let
 // val-
@@ -437,6 +443,7 @@ case- tpo1 of
 //
 |
 T1Mapp(tm1, tm2) =>
+let
 val
 tv1 = t1erm_interp1(tm1, env0)
 val
@@ -531,7 +538,7 @@ end
 //
 | 
 T1Mlazy(tm1) =>
-t1erm_interp1(tm1, env0)
+T1Vlazy(t1erm_interp1(tm1, env0))
 //
 | 
 T1Manno(tm1, tp1) => t1erm_interp1(tm1, env0)
