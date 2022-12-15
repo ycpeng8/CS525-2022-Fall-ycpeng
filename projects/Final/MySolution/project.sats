@@ -190,7 +190,7 @@ datatype t1val =
 | T1Vint of int
 | T1Vbtf of bool
 | T1Vstr of string
-| T1Vstrm of (t1val, t1val)
+// | T1Vstrm of (t1val, t1val)
 //
 | T1Vtup of (t1val, t1val)
 //
@@ -198,7 +198,7 @@ datatype t1val =
 | T1Vfix of (t1erm, t1env)
 //
 // for thunkfication
-| T1Vlazy of (t1erm, t1env)
+// | T1Vlazy of (t1erm, t1env)
 //
 | // for constructors
 T1Vcons of (int(*tag*), t1valist)

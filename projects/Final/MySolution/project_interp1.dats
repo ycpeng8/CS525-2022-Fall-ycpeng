@@ -119,10 +119,7 @@ val () =
   | T1Vnil => print("nil")
 )
 val-
-T1Vint(i1) = tv1 
-val-
-T1Vint(i2) = tv2 
-in T1Vint(i1+i2)
+T1Vint(i1) = tv1 and T1Vint(i2) = tv2 in T1Vint(i1+i2)
 end
 | "-" =>
 let
@@ -314,73 +311,83 @@ case- tv1_tail of
 | mylist_cons(_, _) => T1Vcons(1, tv1_tail)
 end
 | "strm_nil" =>
-T1Vstrm(T1Vnil, T1Vnil)
+T1Vcons(0, mylist_nil())
 | "strm_cons" =>
 let
 val-
 mylist_cons(tv1, tvs) = tvs
 val-
 mylist_cons(tv2, tvs) = tvs
+val-
+T1Vcons(_, lst) = tv2
 in
-T1Vstrm(tv1, tv2)
+T1Vcons(1, mylist_cons(tv1, lst))
 end
 | "strm_nilq" =>
 let
 val-
 mylist_cons(tv1, tvs) = tvs
 val-
-T1Vstrm(tv11, tv12) = tv1
+T1Vcons(flag, _) = tv1
 in
-case- tv11 of
-| T1Vnil => T1Vbtf(true)
-| _ => T1Vbtf(false)
+if flag = 0 then T1Vbtf(true) else T1Vbtf(false)
 end
 | "strm_consq" =>
 let
 val-
 mylist_cons(tv1, tvs) = tvs
 val-
-T1Vstrm(tv11, tv12) = tv1
+T1Vcons(flag, _) = tv1
 in
-case- tv11 of
-| T1Vnil => T1Vbtf(false)
-| _ => T1Vbtf(true)
+if flag = 0 then T1Vbtf(false) else T1Vbtf(true)
 end
 | "strm_uncons1" =>
 let
 val-
 mylist_cons(tv1, tvs) = tvs
 val-
-T1Vstrm(tv11, tv12) = tv1
+T1Vcons(_, lst) = tv1
+val-
+tv1_head = mylist_head(lst)
 in
-tv11
+tv1_head
 end
 | "strm_uncons2" =>
 let
 val-
 mylist_cons(tv1, tvs) = tvs
 val-
-T1Vstrm(tv11, tv12) = tv1
+T1Vcons(_, lst) = tv1
+val-
+tv1_tail = mylist_tail(lst)
 in
-tv12
+case- tv1_tail of
+| mylist_nil() => T1Vcons(0, tv1_tail)
+| mylist_cons(_, _) => T1Vcons(1, tv1_tail)
 end
 | "$eval" =>
 let
 val-
 mylist_cons(tv1, tvs) = tvs
-val-
-T1Vlazy(tm1, env0) = tv1
-val-
-x = t1erm_interp1(tm1, env0)
-val () = 
-(
-  case- x of
-  | T1Vstrm(_, _) => print("strm")
-  | T1Vlazy(_, _) => print("lazy")
-)
 in
-x
+tv1
 end
+// let
+// val-
+// mylist_cons(tv1, tvs) = tvs
+// val-
+// T1Vlazy(tm1, env0) = tv1
+// val-
+// x = t1erm_interp1(tm1, env0)
+// // val () = 
+// // (
+// //   case- x of
+// //   | T1Vstrm(_, _) => print("strm")
+// //   | T1Vlazy(_, _) => print("lazy")
+// // )
+// in
+// x
+// end
 )
 end (*let*) // end of [t1erm_interp_opr(tm0, xvs)]
 
@@ -430,7 +437,6 @@ case- tpo1 of
 //
 |
 T1Mapp(tm1, tm2) =>
-let
 val
 tv1 = t1erm_interp1(tm1, env0)
 val
@@ -525,7 +531,7 @@ end
 //
 | 
 T1Mlazy(tm1) =>
-T1Vlazy(tm1, env0)
+t1erm_interp1(tm1, env0)
 //
 | 
 T1Manno(tm1, tp1) => t1erm_interp1(tm1, env0)
