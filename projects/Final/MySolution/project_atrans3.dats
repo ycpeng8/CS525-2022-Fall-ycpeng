@@ -124,6 +124,14 @@ extern
 fun
 reg_if_if_tbs(treg: t2reg, bndl: t2bndlst): t2bndlst
 (* ****** ****** *)
+
+(* ****** ****** *)
+extern
+fun
+find_args(bds: t2bndlst, tbx: t2box): (t2bndlst, t2boxlst)
+(* ****** ****** *)
+
+(* ****** ****** *)
 //
 implement
 t1erm_atrans0(t1m0) =
@@ -1246,11 +1254,13 @@ T2CMP(bds1, t2x1) = tc1
 val
 T2CMP(bds2, t2x2) = tc2
 val
+(bds2, t2xs) = find_args(bds2, t2x2)
+val
 bnds = mylist_append(bds1, bds2)
 val
 treg = t2reg_new()
 val
-t2xlst = mylist_pair(t2x1, t2x2)
+t2xlst = mylist_cons(t2x1, t2xs)
 val
 tbnd =
 T2BND(treg, T2Iopr("strm_cons", t2xlst))
@@ -1338,6 +1348,21 @@ in
 T2CMP(bds1 + tbnd, T2Vreg(treg))
 end
 )
+end
+(* ****** ****** *)
+
+
+implement
+find_args(bds, tbx) =
+let
+val-
+mylist_cons(bd, bds) = mylist_reverse(bds)
+val-
+T2BND(treg, ins) = bd
+in
+case- ins of
+| T2Ical(t2b1, t2b2) => (mylist_reverse(bds), mylist_pair(t2b1, t2b2))
+| _ => (bds, mylist_sing(tbx))
 end
 (* ****** ****** *)
 

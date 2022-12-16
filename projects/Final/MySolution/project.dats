@@ -35,7 +35,7 @@ UN = "prelude/SATS/unsafe.sats"
 #staload "./project_interp1.dats"
 #staload "./project_tcheck2.dats"
 #staload "./project_atrans3.dats"
-// #staload "./project_emitter.dats"
+#staload "./project_emitter.dats"
 
 (* ****** ****** *)
 
@@ -46,7 +46,7 @@ UN = "prelude/SATS/unsafe.sats"
 #dynload "./project_interp1.dats"
 #dynload "./project_tcheck2.dats"
 #dynload "./project_atrans3.dats"
-// #dynload "./project_emitter.dats"
+#dynload "./project_emitter.dats"
 
 (* ****** ****** *)
 //
@@ -144,10 +144,10 @@ val () =
 println!
 ("atrans: t2atrans = ", t2atrans)
 
-// val () =
-// println!
-// ("C Code:\n")
-// val () = temit3(t2atrans)
+val () =
+println!
+("C Code:\n")
+val () = temit3(t2atrans)
 
 // val () =
 // println!
