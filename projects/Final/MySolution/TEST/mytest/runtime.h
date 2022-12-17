@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /* ****** ****** */
 
@@ -299,6 +300,39 @@ LAMVAL_strm(lamval1 x, lamval1 (*y)(lamval1 arg), lamval1 z)
   p0->arg = z;
   return (lamval1)p0;
 }
+
+typedef
+struct{
+  int tag;
+  lamval1 (*cfp_func)(lamval1 arg);
+  lamval1 env[];
+} lamval0_cfp;
+
+typedef lamval0_cfp *lamval1_cfp;
+
+lamval1 
+LAMVAL_cfp(lamval1 cfp_func, lamval1 env)
+{
+  lamval1_cfp tmp0;
+  tmp0 = (lamval1_cfp)malloc(sizeof(lamval0_cfp));
+  tmp0->tag = TAGcfp;
+  tmp0->cfp_func = (lamval1 (*)(lamval1))cfp_func;
+  memcpy(tmp0->env, &env, sizeof(env));
+  // tmp0->env = env;
+  return (lamval1)tmp0;
+}
+
+// lamval1 
+// LAMVAL_cfp(lamval1 (*cfp_func)(lamval1 arg), lamval1 env[])
+// {
+//   lamval1_cfp tmp0;
+//   tmp0 = (lamval1_cfp)malloc(sizeof(lamval0_cfp));
+//   tmp0->tag = TAGcfp;
+//   tmp0->cfp_func = cfp_func;
+//   memcpy(tmp0->env, env, sizeof(env));
+//   tmp0->env = env;
+//   return (lamval1)tmp0;
+// }
 
 // extern
 // lamval1

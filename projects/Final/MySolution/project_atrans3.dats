@@ -132,6 +132,13 @@ find_args(bds: t2bndlst, tbx: t2box): (t2bndlst, t2boxlst)
 (* ****** ****** *)
 
 (* ****** ****** *)
+extern
+fun
+find_cfp_env(lam_bds2: t2bndlst, env0: t2env, cfp_env: t2env): t2env
+(* ****** ****** *)
+
+
+(* ****** ****** *)
 //
 implement
 t1erm_atrans0(t1m0) =
@@ -308,6 +315,10 @@ fprint!
 | T2Ilet(dcs1) =>
 fprint!
 (out, "T2Ilet(", dcs1, ")")
+//
+| T2Icfp(t2x1, dcs1) =>
+fprint!
+(out, "T2Icfp(", t2x1, ";", dcs1, ")")
 ) (*case+*) // end of [fprint_t2ins(out,t2i0)]
 //
 (* ****** ****** *)
@@ -438,6 +449,82 @@ bndl
 end
 (* ****** ****** *)
 
+implement
+find_cfp_env(lam_bds2, env0, cfp_env) =
+case- lam_bds2 of
+| mylist_nil() => cfp_env
+| mylist_cons(lam_bnd2, lam_bds2) =>
+let
+val-T2BND(treg, tins) = lam_bnd2
+in
+case- tins of
+| T2Iopr(_, t2bxlst) =>
+let
+val-mylist_cons(t2x1, t2bxlst) = t2bxlst
+val-mylist_cons(t2x2, t2bxlst) = t2bxlst
+in
+  case- t2x1 of
+  | T2Vvar(x1) => 
+    let
+    val tcmp1 = t1erm_atrans1_var(T1Mvar(x1), env0)
+    val cfp_env = mylist_cons(@(x1, tcmp1), cfp_env)
+    in
+      case- t2x2 of
+      | T2Vvar(x2) => 
+        let
+        val tcmp2 = t1erm_atrans1_var(T1Mvar(x2), env0)
+        val cfp_env = mylist_cons(@(x2, tcmp2), cfp_env)
+        in
+          find_cfp_env(lam_bds2, env0, cfp_env)
+        end
+      | _ => find_cfp_env(lam_bds2, env0, cfp_env)
+    end
+  | _ =>
+  (
+    case- t2x2 of
+    | T2Vvar(x2) => 
+      let
+      val tcmp2 = t1erm_atrans1_var(T1Mvar(x2), env0)
+      val cfp_env = mylist_cons(@(x2, tcmp2), cfp_env)
+      in
+        find_cfp_env(lam_bds2, env0, cfp_env)
+      end
+    | _ => find_cfp_env(lam_bds2, env0, cfp_env)
+  )
+end
+| T2Ical(tbx1, tbx2) =>
+(
+  case- tbx1 of
+  | T2Vvar(x1) => 
+    let
+    val tcmp1 = t1erm_atrans1_var(T1Mvar(x1), env0)
+    val cfp_env = mylist_cons(@(x1, tcmp1), cfp_env)
+    in
+      case- tbx2 of
+      | T2Vvar(x2) => 
+        let
+        val tcmp2 = t1erm_atrans1_var(T1Mvar(x2), env0)
+        val cfp_env = mylist_cons(@(x2, tcmp2), cfp_env)
+        in
+          find_cfp_env(lam_bds2, env0, cfp_env)
+        end
+      | _ => find_cfp_env(lam_bds2, env0, cfp_env)
+    end
+  | _ =>
+  (
+    case- tbx2 of
+    | T2Vvar(x2) => 
+      let
+      val tcmp2 = t1erm_atrans1_var(T1Mvar(x2), env0)
+      val cfp_env = mylist_cons(@(x2, tcmp2), cfp_env)
+      in
+        find_cfp_env(lam_bds2, env0, cfp_env)
+      end
+    | _ => find_cfp_env(lam_bds2, env0, cfp_env)
+  )
+)
+end
+
 
 (* ****** ****** *)
 implement
@@ -472,6 +559,32 @@ T2CMP
 (bds2, t2x2) =
 t1erm_atrans1(t1m2, env0)
 //
+in
+case- t1m2 of
+| T1Mlam(targ, topt, tmlam) =>
+let
+val-mylist_cons(bd2, bds2) = bds2
+val-T2BND(tg, ti) = bd2
+val-T2Icfp(tlam, _) = ti
+val-T2Vlam(body) = tlam
+val-T2CMP(lam_bds2, tbx) = body
+
+val cfp_env = find_cfp_env(lam_bds2, env0, mylist_nil()) // find cfp env
+
+val treg_cfp = t2reg_new()
+val 
+tbnd_cfp = T2BND(treg_cfp, T2Icfp(T2Vlam(body), cfp_env))
+val bnds = bds1 + tbnd_cfp
+val
+treg = t2reg_new()
+val
+tbnd =
+T2BND(treg, T2Itup(t2x1, T2Vreg(treg_cfp)))
+in
+T2CMP(bnds + tbnd, T2Vreg(treg))
+end
+| _ =>
+let
 val
 treg = t2reg_new()
 val
@@ -481,23 +594,36 @@ val
 bnds = mylist_append(bds1, bds2)
 in//let
   T2CMP(bnds + tbnd, T2Vreg(treg))
+end 
+
 end (*let*) // end of [T1Mtup(t1m1,t1m2)]
 //
 |
 T1Mlam
 (targ, topt, t1m1) =>
-(
-t2cmp_val
-(T2Vlam(body))) where
-{
-//
+let
 val t2c0 = t2cmp_val(T2Varg(0))
-//
 val env1 =
 mylist_cons(@(targ, t2c0), env0)
 val body = t1erm_atrans1(t1m1, env1)
-//
-} (*where*) // end of [T1Mlam(targ,topt,t1m1)]
+val 
+treg = t2reg_new()
+in
+T2CMP(mylist_sing(T2BND(treg, T2Icfp(T2Vlam(body), mylist_nil()))), T2Vreg(treg));
+end (*let*) // end of [T1Mlam(targ,topt,t1m1)]
+
+// (
+// t2cmp_val
+// (T2Vlam(body))) where
+// {
+// //
+// val t2c0 = t2cmp_val(T2Varg(0))
+// //
+// val env1 =
+// mylist_cons(@(targ, t2c0), env0)
+// val body = t1erm_atrans1(t1m1, env1)
+// //
+// } (*where*) // end of [T1Mlam(targ,topt,t1m1)]
 //
 |
 // T1Mvar(tv) =>
@@ -710,19 +836,32 @@ end
 |
 T1Mfix
 (fnm, xnm, tpo_arg, tm1, tpo_res) => 
-(
-t2cmp_val
-(T2Vlam(body))) where
-{
-//
+let
 val t2c0 = t2cmp_val(T2Varg(0))
 val t2cf = t2cmp_val(T2Vfix(fnm))
-//
 val env1 =
 mylist_cons(@(fnm, t2cf), mylist_cons(@(xnm, t2c0), env0))
 val body = t1erm_atrans1(tm1, env1)
-//
-} (*where*) // end of [T1Mfix(targ,topt,t1m1)]
+val 
+treg = t2reg_new()
+in
+T2CMP(mylist_sing(T2BND(treg, T2Icfp(T2Vlam(body), mylist_nil()))), T2Vreg(treg));
+end (*let*) // end of [T1Mfix(targ,topt,t1m1)]
+
+// (
+// t2cmp_val
+// (T2Vlam(body))) where
+// {
+// //
+// val t2c0 = t2cmp_val(T2Varg(0))
+// val t2cf = t2cmp_val(T2Vfix(fnm))
+// //
+// val env1 =
+// mylist_cons(@(fnm, t2cf), mylist_cons(@(xnm, t2c0), env0))
+// val body = t1erm_atrans1(tm1, env1)
+// //
+// } (*where*) // end of [T1Mfix(targ,topt,t1m1)]
+
 //
 |
 T1Mlet(dcls, tm1) =>

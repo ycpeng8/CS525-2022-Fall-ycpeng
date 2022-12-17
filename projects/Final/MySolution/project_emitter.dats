@@ -57,6 +57,10 @@ fun
 print_funs(funs: t3funlst):void
 extern
 fun
+print_funs_dcls(funs: t3funlst):void
+(* ****** ****** *)
+extern
+fun
 collect_regs(bndl: t2bndlst, regs: mylist(t2reg)): mylist(t2reg)
 extern
 fun
@@ -141,6 +145,7 @@ temit3_function
 let
 val
 funs = find_funs_in_dcls(t2trans, mylist_nil())
+val () = print_funs_dcls(funs)
 in
 print_funs(funs)
 end
@@ -292,6 +297,21 @@ val () = print_return(tbx)
 val () = println!("}\n")
 in
 print_funs(funs)
+end
+
+implement
+print_funs_dcls(funs) =
+case- funs of
+| mylist_nil() => ()
+| mylist_cons(func, funs) =>
+let
+val-(tv, tcmp) = func
+val () = println!("extern");
+val () = println!("lamval1");
+val () = println!(tv, "(lamval1 x);");
+val () = println!("");
+in
+print_funs_dcls(funs)
 end
 
 implement

@@ -319,6 +319,8 @@ T2Itup of (t2box, t2box) // pair formation
 T2Iif0 of (t2box, t2bndlst, t2bndlst)
 |
 T2Ilet of (t2env)
+|
+T2Icfp of (t2box, t2env) // tag=0: function pointer; tag=1: normal variable
 //
 and
 t2bnd =
@@ -331,7 +333,7 @@ t2var = string and
 t2boxlst = mylist(t2box) and
 t2bndlst = mylist(t2bnd) and 
 t2inslst = mylist(t2ins) and
-t2env = mylist(@(t1var, t2cmp))
+t2env = mylist(@(t1var, t2cmp)) 
 //
 (* ****** ****** *)
 
