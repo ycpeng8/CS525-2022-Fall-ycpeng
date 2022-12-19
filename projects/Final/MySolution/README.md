@@ -4,7 +4,7 @@
 
 ## Report: [Final Report](./Compiler_Final_Project_Report.pdf)
 
-## Presentation: \<not ready\>
+## Presentation: [Video](https://drive.google.com/file/d/1dIWlzv99mm81t4fat8GIjF4EwXqZAawe/view?usp=share_link)
 
 ## Work Accomplished
 
