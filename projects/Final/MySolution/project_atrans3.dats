@@ -316,9 +316,9 @@ fprint!
 fprint!
 (out, "T2Ilet(", dcs1, ")")
 //
-| T2Icfp(t2x1, dcs1) =>
-fprint!
-(out, "T2Icfp(", t2x1, ";", dcs1, ")")
+// | T2Icfp(t2x1, dcs1) =>
+// fprint!
+// (out, "T2Icfp(", t2x1, ";", dcs1, ")")
 ) (*case+*) // end of [fprint_t2ins(out,t2i0)]
 //
 (* ****** ****** *)
@@ -561,28 +561,28 @@ t1erm_atrans1(t1m2, env0)
 //
 in
 case- t1m2 of
-| T1Mlam(targ, topt, tmlam) =>
-let
-val-mylist_cons(bd2, bds2) = bds2
-val-T2BND(tg, ti) = bd2
-val-T2Icfp(tlam, _) = ti
-val-T2Vlam(body) = tlam
-val-T2CMP(lam_bds2, tbx) = body
+// | T1Mlam(targ, topt, tmlam) =>
+// let
+// val-mylist_cons(bd2, bds2) = bds2
+// val-T2BND(tg, ti) = bd2
+// val-T2Icfp(tlam, _) = ti
+// val-T2Vlam(body) = tlam
+// val-T2CMP(lam_bds2, tbx) = body
 
-val cfp_env = find_cfp_env(lam_bds2, env0, mylist_nil()) // find cfp env
+// val cfp_env = find_cfp_env(lam_bds2, env0, mylist_nil()) // find cfp env
 
-val treg_cfp = t2reg_new()
-val 
-tbnd_cfp = T2BND(treg_cfp, T2Icfp(T2Vlam(body), cfp_env))
-val bnds = bds1 + tbnd_cfp
-val
-treg = t2reg_new()
-val
-tbnd =
-T2BND(treg, T2Itup(t2x1, T2Vreg(treg_cfp)))
-in
-T2CMP(bnds + tbnd, T2Vreg(treg))
-end
+// val treg_cfp = t2reg_new()
+// val 
+// tbnd_cfp = T2BND(treg_cfp, T2Icfp(T2Vlam(body), cfp_env))
+// val bnds = bds1 + tbnd_cfp
+// val
+// treg = t2reg_new()
+// val
+// tbnd =
+// T2BND(treg, T2Itup(t2x1, T2Vreg(treg_cfp)))
+// in
+// T2CMP(bnds + tbnd, T2Vreg(treg))
+// end
 | _ =>
 let
 val
@@ -609,7 +609,8 @@ val body = t1erm_atrans1(t1m1, env1)
 val 
 treg = t2reg_new()
 in
-T2CMP(mylist_sing(T2BND(treg, T2Icfp(T2Vlam(body), mylist_nil()))), T2Vreg(treg));
+// T2CMP(mylist_sing(T2BND(treg, T2Icfp(T2Vlam(body), mylist_nil()))), T2Vreg(treg));
+T2CMP(mylist_nil(), T2Vlam(body))
 end (*let*) // end of [T1Mlam(targ,topt,t1m1)]
 
 // (
@@ -845,7 +846,8 @@ val body = t1erm_atrans1(tm1, env1)
 val 
 treg = t2reg_new()
 in
-T2CMP(mylist_sing(T2BND(treg, T2Icfp(T2Vlam(body), mylist_nil()))), T2Vreg(treg));
+// T2CMP(mylist_sing(T2BND(treg, T2Icfp(T2Vlam(body), mylist_nil()))), T2Vreg(treg));
+T2CMP(mylist_nil(), T2Vlam(body))
 end (*let*) // end of [T1Mfix(targ,topt,t1m1)]
 
 // (

@@ -319,8 +319,8 @@ T2Itup of (t2box, t2box) // pair formation
 T2Iif0 of (t2box, t2bndlst, t2bndlst)
 |
 T2Ilet of (t2env)
-|
-T2Icfp of (t2box, t2env) // tag=0: function pointer; tag=1: normal variable
+// |
+// T2Icfp of (t2box, t2env) // tag=0: function pointer; tag=1: normal variable
 //
 and
 t2bnd =

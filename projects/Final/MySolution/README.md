@@ -1,5 +1,7 @@
 # Final Project
 
+09/18 Note: I commited unfinished closure conversion code in atrans. That part will result in an unexpected error. The newest version was uploaded and I didn't change any other code. However, the commited closure conversion code is still following the procedure I desgined. I will talk about the detail in the report.
+
 ## Report: \<not ready\>
 
 ## Presentation: \<not ready\>
